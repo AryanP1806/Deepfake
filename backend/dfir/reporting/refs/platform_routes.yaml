@@ -1,0 +1,33 @@
+# Reporting routes. Only official, publicly documented routes are listed. There is NO API submission:
+# the user submits every report themselves. Deep links change often, so help-centre roots are used.
+ncrp:
+  name: National Cyber Crime Reporting Portal (NCRP)
+  url: https://cybercrime.gov.in
+  helpline: "1930"
+  routes:
+    women_child: "Report Women/Child Related Crime — includes child sexual abuse material and sexually explicit content; anonymous reporting is offered for child sexual abuse material."
+    other: "Report Other Cyber Crime — impersonation, fraud, defamation, other cyber offences (needs login with mobile OTP)."
+  notes:
+    - "Field names and upload limits on the live portal may differ from this template; follow the portal."
+    - "Note the acknowledgement number after submitting and log it here."
+    - "For financial fraud, call 1930 first, as quickly as possible."
+helplines:
+  - {name: "National Cyber Crime Helpline", contact: "1930"}
+  - {name: "Women Helpline", contact: "181"}
+  - {name: "Childline", contact: "1098"}
+  - {name: "Emergency", contact: "112"}
+platforms:
+  Instagram: {report: "Use 'Report' on the post/profile; for intimate or impersonation content use the Help Centre forms.", help: "https://help.instagram.com", grievance: "Meta's India Grievance Officer contact is listed in the Instagram Help Centre."}
+  Facebook: {report: "Use 'Report' on the post/profile; intimate-image and impersonation forms are in the Help Centre.", help: "https://www.facebook.com/help", grievance: "Meta's India Grievance Officer contact is listed in the Facebook Help Centre."}
+  "X (Twitter)": {report: "Use 'Report post'; private-media and impersonation forms are in the Help Center.", help: "https://help.x.com", grievance: "X lists an India grievance contact in its Help Center."}
+  YouTube: {report: "Use 'Report' on the video; privacy complaints can be filed through YouTube's privacy complaint process.", help: "https://support.google.com/youtube", grievance: "Google lists an India Grievance Officer in its support pages."}
+  Telegram: {report: "Use 'Report' in the app; public channels can also be reported to the abuse address published on telegram.org.", help: "https://telegram.org/faq", grievance: "Check Telegram's published India grievance contact."}
+  Snapchat: {report: "Use 'Report' on the Snap/profile.", help: "https://help.snapchat.com", grievance: "Snap lists an India grievance contact in its support site."}
+  TikTok: {report: "Not operating in India; report via the in-app tool if accessible.", help: "https://support.tiktok.com", grievance: ""}
+  Reddit: {report: "Use 'Report' on the post; non-consensual intimate media has a dedicated report reason.", help: "https://support.reddithelp.com", grievance: ""}
+  ShareChat: {report: "Use 'Report' in the app.", help: "https://sharechat.com", grievance: "ShareChat/Moj publish an India grievance officer contact."}
+  Moj: {report: "Use 'Report' in the app.", help: "https://mojapp.in", grievance: "ShareChat/Moj publish an India grievance officer contact."}
+  Website: {report: "Contact the site's abuse address, then the hosting provider's abuse contact (shown under domain intelligence).", help: "", grievance: ""}
+other_routes:
+  - {name: "StopNCII.org", url: "https://stopncii.org", when: "intimate images (18+)", note: "Hashes are created on your own device; the image is not uploaded."}
+  - {name: "Grievance Appellate Committee", url: "https://gac.gov.in", when: "a platform's grievance officer did not resolve your complaint", note: "Appeal route under the IT Rules."}

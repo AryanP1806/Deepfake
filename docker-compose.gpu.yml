@@ -1,0 +1,14 @@
+# Optional NVIDIA GPU: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
+# Needs the NVIDIA driver (and Docker Desktop with WSL2 on Windows, or nvidia-container-toolkit on Linux).
+services:
+  dfir:
+    build:
+      args:
+        TORCH_INDEX: cu126
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

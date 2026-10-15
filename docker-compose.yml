@@ -1,0 +1,19 @@
+# Start:  docker compose up --build        (then open http://localhost:8000)
+# Stop:   docker compose down              (your cases and models are kept in Docker volumes)
+services:
+  dfir:
+    build: .
+    image: dfir:latest
+    ports:
+      - "127.0.0.1:8000:8000"   # only this computer can open it: cases may contain sensitive material
+    env_file:
+      - path: .env              # optional: copy .env.example to .env to add a Hive key
+        required: false
+    volumes:
+      - dfir-data:/app/data     # cases, evidence vault, database
+      - dfir-models:/app/models # downloaded detection models (about 3 GB)
+    restart: unless-stopped
+
+volumes:
+  dfir-data:
+  dfir-models:

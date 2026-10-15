@@ -1,0 +1,62 @@
+# --- secrets & local config (never commit) ---
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+**/settings.json
+.claude/settings.local.json
+
+# --- runtime data: cases, evidence, databases, downloaded models, scratch ---
+data/
+models/
+tmp/
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.log
+*.pth
+*.pt
+*.tar
+*.onnx
+
+# --- caches & build output ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+build/
+wheels/
+*.egg-info/
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# --- editor / OS / assistant ---
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- demo material that is generated or private ---
+demo/fixture_site/
+demo/victim_received_copy.jpg
+
+# --- vendored detector code: inference files only (TruFor's training folder is ~195 MB incl. a 94 MB weights file) ---
+backend/third_party/TruFor/TruFor_train_test/

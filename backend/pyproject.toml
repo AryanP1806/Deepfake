@@ -1,0 +1,63 @@
+[project]
+name = "dfir"
+version = "0.1.0"
+description = "Deepfake Investigation & Response System — forensic case workflow from detection to reporting and monitoring"
+authors = [
+    { name = "Aryan", email = "aryanpore3056@gmail.com" }
+]
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "sqlmodel>=0.0.22",
+    "pydantic>=2.7",
+    "pillow>=10.4",
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "opencv-python-headless>=4.10",
+    "imagehash>=4.3",
+    "networkx>=3.3",
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "apscheduler>=3.10,<4",
+    "python-docx>=1.1",
+    "soundfile>=0.12",
+    "rapidfuzz>=3.9",
+    "dnspython>=2.6",
+    "pdqhash>=0.2.8",
+    "sse-starlette>=3.5.0",
+]
+
+[project.optional-dependencies]
+capture = ["playwright>=1.45", "yt-dlp>=2024.8.6"]
+provenance = ["c2pa-python>=0.6", "invisible-watermark>=0.2.0"]
+ocr = ["rapidocr-onnxruntime>=1.3"]
+asr = ["faster-whisper>=1.0"]
+ml = ["torch>=2.3", "torchvision>=0.18", "open-clip-torch>=2.26"]
+llm = ["anthropic>=0.40"]
+# research detectors (SPAI, TruFor, SBI) — vendored code under third_party/
+detectors = ["einops>=0.8", "yacs>=0.1.8", "matplotlib>=3.8", "seaborn>=0.13", "pandas>=2.2", "gdown>=5.2",
+             "efficientnet-pytorch>=0.7.1", "scikit-learn>=1.5", "datasets>=3.0"]
+
+[dependency-groups]
+dev = ["pytest>=8.2"]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
+
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

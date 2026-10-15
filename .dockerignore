@@ -1,0 +1,17 @@
+.git
+.claude
+.env
+**/.env
+data
+models
+tmp
+docs
+demo
+**/node_modules
+**/.venv
+**/dist
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+backend/tests
+backend/third_party/TruFor/TruFor_train_test

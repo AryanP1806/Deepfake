@@ -1,0 +1,107 @@
+# Possibly relevant provisions — reference material for the complainant, their lawyer and the police.
+# This system does not decide which provisions apply. Every entry must be confirmed by a lawyer or the police.
+# `last_verified` records when a human last checked the entry against the official text.
+disclaimer: >
+  These provisions are listed to help you talk to the police or a lawyer. They are not legal advice,
+  and this tool does not decide which offences apply. Confirm the current text and applicability
+  with a lawyer or the investigating officer.
+provisions:
+  - id: it_66c
+    law: Information Technology Act, 2000
+    section: "66C"
+    title: Identity theft
+    relevance: Fraudulent use of another person's unique identification feature (e.g. impersonation using their likeness/account).
+    incident_types: [impersonation_fraud, voice_clone_scam, ncii, political_defamation]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: it_66d
+    law: Information Technology Act, 2000
+    section: "66D"
+    title: Cheating by personation using a computer resource
+    relevance: Deepfake video/voice used to impersonate someone to cheat.
+    incident_types: [impersonation_fraud, voice_clone_scam, sextortion]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: it_66e
+    law: Information Technology Act, 2000
+    section: "66E"
+    title: Violation of privacy
+    relevance: Capturing, publishing or transmitting images of a person's private area without consent.
+    incident_types: [ncii, sextortion]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: it_67
+    law: Information Technology Act, 2000
+    section: "67"
+    title: Publishing or transmitting obscene material in electronic form
+    incident_types: [ncii, sextortion]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: it_67a
+    law: Information Technology Act, 2000
+    section: "67A"
+    title: Publishing or transmitting material containing sexually explicit acts
+    incident_types: [ncii, sextortion]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: it_67b
+    law: Information Technology Act, 2000
+    section: "67B"
+    title: Material depicting children in sexually explicit acts
+    relevance: Applies where a minor may be depicted. Report immediately; do not store or share the material.
+    incident_types: [minors]
+    source: https://www.indiacode.nic.in/handle/123456789/1999
+    last_verified: null
+  - id: bns_general
+    law: Bharatiya Nyaya Sanhita, 2023
+    section: "various"
+    title: Offences such as voyeurism, stalking, insulting the modesty of a woman, extortion, cheating by personation, criminal intimidation, forgery and defamation
+    relevance: The police decide which BNS sections apply to the facts. Section numbers changed from the IPC, so confirm current numbers with the police or a lawyer.
+    incident_types: [ncii, sextortion, impersonation_fraud, voice_clone_scam, political_defamation, other]
+    source: https://www.indiacode.nic.in/
+    last_verified: null
+  - id: pocso
+    law: Protection of Children from Sexual Offences Act, 2012
+    section: "various"
+    title: Sexual offences against children, including child sexual abuse material
+    incident_types: [minors]
+    source: https://www.indiacode.nic.in/
+    last_verified: null
+  - id: itrules_3_2_b
+    law: Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021
+    section: "Rule 3(2)(b)"
+    title: Removal of intimate or impersonating (including artificially morphed) content on the depicted person's complaint
+    relevance: Intermediaries are required to act within 24 hours on a complaint by (or on behalf of) the depicted person about content that shows them in intimate or sexual content, or impersonates them, including artificially morphed images.
+    incident_types: [ncii, sextortion, impersonation_fraud]
+    source: https://www.meity.gov.in/
+    last_verified: null
+  - id: itrules_grievance
+    law: IT Rules, 2021
+    section: "Rule 3(2)(a)"
+    title: Platform grievance redressal (acknowledge and resolve complaints within set timelines)
+    incident_types: [ncii, sextortion, impersonation_fraud, voice_clone_scam, political_defamation, other]
+    source: https://www.meity.gov.in/
+    last_verified: null
+  - id: gac
+    law: IT Rules, 2021 (as amended 2022)
+    section: "Grievance Appellate Committee"
+    title: Appeal against a platform grievance officer's decision
+    incident_types: [ncii, sextortion, impersonation_fraud, voice_clone_scam, political_defamation, other]
+    source: https://gac.gov.in
+    last_verified: null
+  - id: synthetic_labelling
+    law: IT Rules amendments on synthetically generated information
+    section: "check current status"
+    title: Labelling and due-diligence obligations for AI-generated / synthetic content
+    relevance: MeitY has proposed or issued amendments and advisories on deepfakes and synthetic media. Check the current notified text before relying on it.
+    incident_types: [ncii, impersonation_fraud, voice_clone_scam, political_defamation, other]
+    source: https://www.meity.gov.in/
+    last_verified: null
+evidence_law:
+  - id: bsa_63
+    law: Bharatiya Sakshya Adhiniyam, 2023
+    section: "63"
+    title: Admissibility of electronic records — certificate
+    relevance: Electronic records produced as evidence generally need a certificate, in the prescribed form, about how the record was produced. A draft is generated with the package for the responsible person to review and sign.
+    source: https://www.indiacode.nic.in/
+    last_verified: null

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Design tokens. Status hues validated with the dataviz palette validator on the dark surface
+   (#1a1a19, --pairs all): ALL CHECKS PASS; CVD worst pair 6.9 (green↔yellow) is in the floor band,
+   so status ALWAYS ships with secondary encoding (label + line style / icon), never colour alone. */
+@theme {
+  --color-bg: #121211;
+  --color-surface: #1a1a19;
+  --color-raised: #232321;
+  --color-line: #2f2f2c;
+  --color-line-strong: #45443f;
+  --color-ink: #f2f2ee;
+  --color-ink-2: #c3c2b7;
+  --color-ink-3: #8f8e86;
+
+  --color-st-verified: #008300;
+  --color-st-corroborated: #3987e5;
+  --color-st-inferred: #c98500;
+  --color-st-lead: #d55181;
+  --color-st-unknown: #8a8983;
+
+  --color-crit: #d03b3b;
+  --color-warn: #fab219;
+  --color-good: #0ca30c;
+
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: #3987e555; }
+* { scrollbar-width: thin; scrollbar-color: #45443f transparent; }
+
+.hatch {
+  background-image: repeating-linear-gradient(45deg, #8a898366 0 2px, transparent 2px 7px);
+}
+.blur-sensitive { filter: blur(18px) saturate(0.6); transition: filter .2s; }
+.blur-sensitive:hover { filter: blur(18px) saturate(0.6); }
+.mono { font-family: var(--font-mono); }
+.card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 12px; }
+.btn {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .8rem; border-radius: 8px;
+  font-weight: 600; font-size: 13px; border: 1px solid var(--color-line-strong); color: var(--color-ink);
+  background: var(--color-raised); cursor: pointer; transition: background .15s, border-color .15s;
+}
+.btn:hover { background: #2c2c29; border-color: #5a5953; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--color-ink); color: #121211; border-color: var(--color-ink); }
+.btn-primary:hover { background: #ffffff; }
+.input {
+  width: 100%; background: #141413; border: 1px solid var(--color-line-strong); border-radius: 8px;
+  padding: .5rem .65rem; color: var(--color-ink); font-size: 13px; outline: none;
+}
+.input:focus { border-color: #8f8e86; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-ink-3); font-weight: 600; }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 #d03b3b66; } 100% { box-shadow: 0 0 0 10px #d03b3b00; } }
+.pulse { animation: pulse-ring 1.6s infinite; }
