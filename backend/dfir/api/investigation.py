@@ -37,7 +37,7 @@ def genealogy(case_id: str, s: Session = Depends(get_session)):
     _case(s, case_id)
     th = thumbs(s, case_id)
     media = s.exec(select(Media).where(Media.case_id == case_id)).all()
-    locs = {l.id: l for l in s.exec(select(Location).where(Location.case_id == case_id)).all()}
+    locs = {l.id: l for l in s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()}  # noqa: E712
     edges = {e.id: e for e in s.exec(select(MatchEdge).where(MatchEdge.case_id == case_id)).all()}
     tree = load_genealogy(case_id)
     for e in tree.get("edges", []):
@@ -84,7 +84,7 @@ def locations(case_id: str, s: Session = Depends(get_session)):
     media = s.exec(select(Media).where(Media.case_id == case_id)).all()
     th = thumbs(s, case_id)
     out = []
-    for l in s.exec(select(Location).where(Location.case_id == case_id)).all():
+    for l in s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all():  # noqa: E712
         d = l.model_dump(mode="json")
         d["media"] = [{"id": m.id, "thumb": th.get(m.id), "label": m.label, "modality": m.modality}
                       for m in media if m.id in (l.media_ids or []) or m.location_id == l.id]

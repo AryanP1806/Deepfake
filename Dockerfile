@@ -23,6 +23,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg libgl1 l
     && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:0.8 /uv /usr/local/bin/uv
 
+# yt-dlp needs a JavaScript runtime to read YouTube; reuse the Node binary from the UI build stage
+COPY --from=web /usr/local/bin/node /usr/local/bin/node
+
 WORKDIR /app/backend
 COPY backend/pyproject.toml backend/uv.lock backend/.python-version ./
 # CPU PyTorch by default (the lock file pins the CUDA 12.6 build used on the dev machine)

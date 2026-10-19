@@ -28,11 +28,11 @@ Your cases and evidence are kept in Docker volumes, so they survive restarts. St
 ## Run it without Docker (developers)
 
 ```bash
-cd backend && uv sync --extra capture --extra provenance --extra ocr --extra ml --extra asr && uv run playwright install chromium
+cd backend && uv sync --extra capture --extra provenance --extra ocr --extra ml --extra asr --extra detectors && uv run playwright install chromium
 ```
 
 ```bash
-cd backend && uv run --extra capture --extra provenance --extra ocr --extra ml --extra asr uvicorn dfir.main:app --port 8000
+cd backend && uv run --extra capture --extra provenance --extra ocr --extra ml --extra asr --extra detectors uvicorn dfir.main:app --port 8000
 ```
 
 ```bash
@@ -141,18 +141,131 @@ The V3 request (`POST https://api.thehive.ai/api/v3/hive/ai-generated-and-deepfa
 Sightengine, Reality Defender and the search APIs (SerpAPI, TinEye, YouTube, Reddit) turn on when their keys are
 added under Settings.
 
+## Start from a link, not a screenshot
+
+On the home page, paste the link to a **photo, video or post** and press *Investigate*. One background job then runs:
+
+1. **Open the link and download its media.** A direct image/video URL is fetched as-is; a page is opened in headless
+   Chromium (screenshot, HTML, MHTML, headers saved) and its main picture/video is downloaded (YouTube, TikTok, X and
+   Instagram reels go through yt-dlp first). The first media found becomes the *suspect media*.
+2. **Check it** with the detectors (Hive first, local second opinion).
+3. **Archive and website records** (Wayback, RDAP/DNS).
+4. **Look for copies** (see below).
+5. **Compare** candidate media with the suspect media and build the spread map.
+
+Progress is shown stage by stage, including what could *not* be searched. Public pages only, as a logged-out visitor:
+a login-protected post can't be read, and the app says so.
+
+**How copies are found** (`propagation/discover.py`): (a) links on the captured pages that point to other posts or other
+pages of the same site, always, and nothing is sent anywhere; (b) with the user's permission, a web search by the caption /
+title (DuckDuckGo, no key; only text is sent); (c) image-search APIs if configured (SerpAPI Lens, TinEye). Every candidate
+is captured and its picture is **geometrically verified** against the suspect media. Only verified copies enter the case
+record (complaint, timeline, graph); unmatched pages are listed as "checked, not included" with the reason, and the user
+can include one by hand. Manual reverse-image links (Google Lens, Bing, Yandex, TinEye) are offered for what automation
+can't reach. Possible-minor cases download and send nothing; intimate cases never auto-send anything to a search service.
+
+## Where it appeared: the spread map
+
+*Suspect media → versions → places.* Solid lines are **verified** (same content, geometric match); dashed amber lines are
+**unverified / speculative**; arrows appear only when one version is clearly a crop or resize of the other. Each version
+lists how it differs in plain words (cropped, mirrored, re-compressed, text added, part of the picture differs...). "Earliest
+copy found" never means "original".
+
+## Takedown & complaint tracker
+
+*Take action* is a guided list for the case type: money first (1930 / bank) when relevant, the NCRP route (anonymous
+Women/Child route or Other Cyber Crime with OTP), one report per platform with ready text and the platform's own steps,
+StopNCII for intimate images (never for possible minors), and escalation. The user does each step on the official site, then
+records the **reference / acknowledgement number** and when they did it; this starts the deadline clock
+(`reporting/refs/takedown_clocks.yaml`, with sources and an "as of" date: 2 hours for intimate/morphed/impersonating
+content, 7 days for grievances, 30 days for an appeal to the Grievance Appellate Committee). When a clock passes with no
+action the tracker shows **overdue** and produces the Grievance Officer escalation text. Every recorded step is a
+user-attested timeline entry and a custody-log entry. Nothing is ever filed automatically.
+
+## Deleting a case
+
+*Case options → Archive or delete*, or the archive/trash button on the home page. **Archive** hides a case and keeps all
+evidence. **Delete** removes the database rows, the evidence vault and the custody log from disk; it needs the exact word
+`DELETE`, refuses while something is running, and leaves a one-line deletion record (`data/deleted_cases.jsonl`: title,
+time, counts, final custody hash).
+
+## Device & source (what the file says about where it came from)
+
+*Investigate deeper → Device & source* lists the camera/phone the file **claims**, every timestamp it carries, the editing
+software and history, owner/author fields, and what metadata survived or was stripped, with consistency checks (re-saved
+after capture, capture time later than publication, pixel size that contradicts the metadata, an embedded camera preview
+that shows a different picture or shape). Everything is labelled *declared in the file (editable)*: a phone **model** is not a
+device and missing metadata is normal after a social-media upload.
+
+**Sensor fingerprint (PRNU), advanced research feature** (`forensics/prnu.py`): tests a questioned image against ≥5 reference
+photos from a *specific suspected camera* (upload them with "Add authentic reference"; they must have exactly the same pixel size).
+Wavelet noise residual → maximum-likelihood fingerprint → peak-to-correlation energy (PCE ≥ 60 = consistent). It refuses images that
+show the same picture (their noise would match because of the picture), resized images and too few references. It was validated on
+synthetic sensors only, not on a camera test set; resizing, cropping, heavy compression and social-media processing destroy the signal,
+and AI-generated images have none.
+
+## AI generator attribution
+
+*Investigate deeper → AI generator* names a **possible generator family** only as far as the evidence goes, as an evidence ladder:
+**signed** (valid C2PA) > **declared** (generation parameters, software fields, IPTC type, unvalidated C2PA; forgeable) >
+**watermark** (decoded open watermark; fragile) > **classifier** (Hive's source probabilities; statistical) > **inherited** (found on
+another verified copy). A family is *established* (signed, or three independent kinds agree), *supported* (written in the file or
+corroborated, but forgeable) or *suggested only*. Conflicting evidence yields "no single family". A generator label on an image the
+detectors call real is flagged as a contradiction. No watermark or metadata never means "real"; SynthID and other proprietary
+watermarks are listed as not checked.
+
+## Connected accounts & leads (the lead engine)
+
+*Investigate deeper → Accounts & leads* (`reasoning/lead_engine.py`) turns posts by several accounts into ranked leads:
+
+1. **Versions.** Identical files, crops, mirrors, re-encodes and overlays, each with how it differs from its neighbour.
+2. **Earliest observed appearance** of every version and family of copies, with the time source stated (declared by the page vs only
+   the moment this app captured it) and archive snapshots as support.
+3. **Comparison** of timestamps, captions, shared links, hashtags, handles visible inside the media, look-alike handles and shared
+   technical artefacts (camera serial, sensor-noise match).
+4. **Graph** that draws what was *observed* solid and what is a *hypothesis* dashed.
+5. **Leads**, each with evidence (observed vs hypothesis), honest confidence, alternative explanations *with a way to test each*, and
+   the authorised evidence (platform records, original uploads, device examination, lawful request) that would confirm or disprove it.
+
+Rules built in: the roles **original creator** (never established from public copies), **editor** (never named; only "first known
+uploader of an altered version"), **first known uploader** and **distributor** are kept apart. Sharing the same file is expected of
+any repost and counts for almost nothing; a relationship between accounts needs several *independent kinds* of distinctive evidence
+(text, identity, time, technical) before it rises above *low*, and never beyond "a hypothesis worth investigating".
+
+## Forensic modules (sensor noise, camera processing, editing, video, audio, provenance)
+
+Six pluggable modules, shown per file on **Investigate deeper -> Forensic modules**. Each returns findings (Measured / Supported /
+Hypothesis / Unknown), a confidence that is *capped by how well the method was validated*, limitations, tool versions and evidence, and
+is stored in the evidence vault and chain of custody. Candidate-device fingerprints (PRNU) are built from reference photos you attest came
+from one camera. Nothing names an exact device or AI model. Full detail and the measured accuracy and false-positive rates:
+[docs/FORENSICS.md](docs/FORENSICS.md). Add your own with a drop-in file or an installable package: [plugins/README.md](plugins/README.md).
+
+```bash
+cd backend && uv run python ../scripts/forensics_bench.py --quick --out ../tmp/q.json      # smoke test, minutes
+cd backend && uv run python ../scripts/forensics_bench.py --real-dir ../models/calibration_data/test --real-n 160   # ~3 h, writes the shipped validation results
+python scripts/theme_contrast_audit.py      # WCAG contrast of every theme token pair
+```
+
+## Appearance
+
+*Settings -> Appearance*: three themes (Workbench, Neomorphism, Claymorphism), each in light and dark (or match the system), a changeable
+accent colour (kept readable: text on the accent and accent text on the page both meet 4.5:1), and a motion setting (match system / reduce
+/ full). Choices apply to charts, controls, cards, navigation and status indicators, are saved in `data/preferences.json` and in the
+browser, and survive restarts. Status colours were validated per mode and surface; status is never shown by colour alone.
+
 ## What each stage does
 
 | Stage | Implementation |
 |---|---|
 | Forensic decomposition | EXIF/XMP/ffprobe, JPEG quantisation tables, C2PA (`c2pa-python`), IPTC DigitalSourceType, SD/ComfyUI/InvokeAI parameter chunks, SD DWT-DCT watermark decoding, ELA, noise residual, spectral peaks, JPEG ghost, faces, video frame/temporal signals, audio bandwidth/pause analysis, OCR (handles, platform marks), optional Whisper and learned detectors |
 | Media genealogy | PDQ + pHash (incl. mirrored), SIFT + RANSAC geometric verification (crops, captions, screen recordings), frame-sequence and audio-landmark alignment, transform inference (crop, mirror, scale, caption/border, screen capture, recompress, format, partial edit, trim, audio swap), Edmonds arborescence → family tree |
-| Propagation | Headless-Chromium capture (screenshot, HTML, MHTML, headers, og/JSON-LD metadata, visible handles, displayed counts), media download (HTTP / yt-dlp), Wayback CDX, RDAP, DNS + ASN |
+| Propagation | Link-first investigation pipeline (`investigate.py`); copy discovery with geometric verification; headless-Chromium capture (screenshot, HTML, MHTML, headers, og/JSON-LD metadata, visible handles, displayed counts), media download (HTTP / yt-dlp), Wayback CDX, RDAP, DNS + ASN |
 | Relationships | Typed graph (media, URL, account, domain, hashtag, device/encoder signature, generator signal) with status on every edge; centrality and look-alike-handle analytics used to **prioritise leads, never to accuse** |
 | Reconstruction | Swimlane timeline with time source and precision for each event, conflict detection, and the unknown creation time drawn as a hatched band |
 | Preservation | Write-once, content-addressed vault (SHA-256 + MD5); hash-chained custody ledger; ZIP package with manifest, hashes.csv, PDF case file, complaint DOCX, draft BSA s.63 certificate and `verify_package.py` |
 | Gaps / next action | Ranked open questions (who can obtain the evidence, effort, value) and an incident-type-specific action plan |
 | Reporting | NCRP-mapped complaint blocks (Complaint Ready → Review/Edit → **you** submit), platform report texts, possibly relevant provisions marked *confirm with a lawyer/police* |
+| Tracking | Complaint & acknowledgement tracker with takedown clocks, overdue detection and escalation text (`reporting/tracker.py`) |
 | Monitoring | Scheduled re-capture: removed / restored / changed / new-version alerts, plus new archive snapshots |
 
 ## Not done, and never faked

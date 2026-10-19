@@ -17,11 +17,15 @@ router = APIRouter(prefix="/api")
 
 
 class CaseIn(BaseModel):
-    title: str
+    title: str = ""
     incident_type: str = "other"
     description: str = ""
     safety: dict = {}
     complainant: dict = {}
+    # link-first start: the first URL is the suspect photo/video/post; the rest are other places it was seen
+    urls: list[str] = []
+    find_copies: bool = True
+    depth: int = 1
 
 
 class CasePatch(BaseModel):
@@ -59,12 +63,23 @@ def list_cases(s: Session = Depends(get_session)):
 
 @router.post("/cases")
 def create_case(body: CaseIn, s: Session = Depends(get_session)):
-    c = Case(**body.model_dump())
+    from urllib.parse import urlparse
+
+    from .workflow import start_investigation
+    urls = [u.strip() for u in body.urls if u and u.strip()]
+    fields = body.model_dump(exclude={"urls", "find_copies", "depth"})
+    if not fields["title"].strip():
+        host = urlparse(urls[0] if "//" in urls[0] else "//" + urls[0]).hostname if urls else None
+        fields["title"] = f"Suspected fake from {host}" if host else "Untitled incident"
+    c = Case(**fields)
     s.add(c)
     s.commit()
     vault_for(c.id).custody.append("case.opened", actor="investigator",
-                                   details={"title": c.title, "incident_type": c.incident_type})
-    return c
+                                   details={"title": c.title, "incident_type": c.incident_type, "links": len(urls)})
+    out = c.model_dump(mode="json")
+    if urls:
+        out["job"] = start_investigation(s, c.id, urls, body.find_copies, body.depth).model_dump(mode="json")
+    return out
 
 
 @router.get("/cases/{case_id}")
@@ -88,6 +103,14 @@ def _media_row(s: Session, case_id: str, m: Media, th: dict) -> dict:
         v = ex["verdict"]
         if v.get("available"):
             row["verdict"] = v
+        else:
+            row["verdict_note"] = (
+                "No detector could judge this video here. The built-in AI and face-swap detectors only check photos; "
+                "Hive (set a key in .env) can check videos. The forensic findings are still in 'Is it fake?'."
+                if m.modality == "video" else
+                "No detector could judge this file. Audio deepfakes are not covered yet; use the forensic findings and, "
+                "for a voice, verify by calling the person back on a number you already know."
+                if m.modality == "audio" else v.get("detail") or v.get("headline"))
     return row
 
 

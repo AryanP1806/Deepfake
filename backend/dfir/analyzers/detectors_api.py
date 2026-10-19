@@ -8,6 +8,7 @@ from ..core import consent
 from ..core.claims import NotRun, Polarity, Status, Strength
 from ..core.config import get_key
 from ..core.db import session
+from ..safety.gate import SafetyPolicy
 from .base import Analyzer, Ctx, register
 
 
@@ -206,7 +207,12 @@ class HiveDetector(_ApiDetector):
                                     "HIVE_REGION=sf1 or va1) in .env")
 
     def _consented(self, ctx: Ctx) -> NotRun | None:
-        if not hive_auto_upload():
+        policy = SafetyPolicy.from_case(getattr(ctx, "safety", None))
+        if policy.minors_possible:  # never send possible child-abuse material to any third party
+            return NotRun(component=self.name, reason="Not uploaded: a minor may be depicted, so this media is never "
+                                                      "sent to an outside service",
+                          how_to_enable="Not available for cases flagged as possibly involving a minor")
+        if policy.intimate or not hive_auto_upload():  # intimate images: always ask first, per case
             return super()._consented(ctx)
         ctx.vault.custody.append("external.upload", tool=f"{self.name}@{self.version}", item_sha256=ctx.media.sha256,
                                  details={"vendor": self.vendor, "consent_action": self.consent_action,
@@ -248,6 +254,8 @@ class HiveDetector(_ApiDetector):
         _ai_claim(ctx, "Hive", ai, "ai_generated", {"classes": classes, **meta})
         if ctx.claims and ctx.claims[-1].data.get("vendor") == "Hive":
             ctx.claims[-1].data.update(head="ai_generated", score=ai, model="Hive (commercial)", primary=True, **meta)
+            # keep the classifier's whole opinion on WHICH generator, not just its top guess (used by generator attribution)
+            ctx.claims[-1].data["source_probs"] = {k: round(v, 4) for k, v in sorted(sources.items(), key=lambda kv: -kv[1])[:8]}
             if top_src and top_src[1] >= 0.5 and (ai or 0) >= 0.5:
                 ctx.claims[-1].data["generator_family"] = f"{top_src[0]} (Hive source attribution)"
         if deepfake is not None:

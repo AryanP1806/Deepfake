@@ -39,6 +39,33 @@ class SerpApiWeb(SearchAdapter):
                           seen_at=o.get("date")) for o in r.json().get("organic_results", []) if o.get("link")]
 
 
+class DuckDuckGoText(SearchAdapter):
+    """Keyless web search for a caption / title / on-screen phrase. Only that text is sent (never the image)."""
+    name, title, kind = "duckduckgo", "DuckDuckGo web search (caption text, no key)", "text"
+    consent_action = "search:duckduckgo"
+    notes = "Best effort: DuckDuckGo sometimes blocks automated queries. Only the text is sent, never the image."
+
+    def available(self):
+        return None
+
+    def search_text(self, query: str) -> list[Candidate]:
+        from urllib.parse import parse_qs, unquote, urlparse
+        r = httpx.post("https://html.duckduckgo.com/html/", data={"q": query}, timeout=30, follow_redirects=True,
+                       headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                              "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"})
+        if r.status_code in (202, 403, 429) or "anomaly" in r.text[:4000].lower():
+            raise RuntimeError("DuckDuckGo refused the automated query (it blocks bots at times) — try later")
+        r.raise_for_status()
+        out = []
+        for m in re.finditer(r'<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>(.*?)</a>', r.text, re.S):
+            href, title = m.group(1), re.sub(r"<[^>]+>", "", m.group(2)).strip()
+            if "uddg=" in href:
+                href = unquote(parse_qs(urlparse(href if href.startswith("http") else "https:" + href).query).get("uddg", [href])[0])
+            if href.startswith("http"):
+                out.append(Candidate(url=href, source=self.name, title=title))
+        return out[:15]
+
+
 class TinEye(SearchAdapter):
     name, title, kind = "tineye", "TinEye reverse image search API", "image"
     key_names, consent_action = ("TINEYE_API_KEY",), "search:tineye"
@@ -121,7 +148,7 @@ class TelegramPublicChannel(SearchAdapter):
         return out
 
 
-ADAPTERS: list[SearchAdapter] = [SerpApiLens(), SerpApiWeb(), TinEye(), BingVisualSearch(), YouTubeSearch(),
+ADAPTERS: list[SearchAdapter] = [SerpApiLens(), SerpApiWeb(), DuckDuckGoText(), TinEye(), BingVisualSearch(), YouTubeSearch(),
                                  RedditSearch(), TelegramPublicChannel()]
 
 

@@ -6,7 +6,7 @@ import { useCase } from '../context'
 import { casePath } from '../lib/paths'
 import { useApi } from '../hooks'
 
-const ACTION_LINK: Record<string, string> = { capture: 'propagation', add_urls: 'propagation', complaint: 'complaint', escalate: 'complaint', monitor: 'monitor' }
+const ACTION_LINK: Record<string, string> = { capture: 'spread', add_urls: 'spread', complaint: 'takedown', escalate: 'takedown', monitor: 'monitor' }
 
 export default function NextAction() {
   const { caseId, tick } = useCase()

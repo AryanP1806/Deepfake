@@ -16,6 +16,7 @@ OUTWARD_ACTIONS = {
     "api_detect:sightengine": "Upload this media to Sightengine's servers for AI-generation detection",
     "search:serpapi": "Send this image to SerpAPI / Google Lens for reverse search",
     "search:tineye": "Send this image to TinEye for reverse search",
+    "search:duckduckgo": "Send a caption / title phrase (text only, no image) to DuckDuckGo to look for copies",
     "search:bing": "Send this image to Bing Visual Search",
     "wayback_save": "Ask the Internet Archive to publicly archive this URL (the archive becomes public)",
     "llm_narrative": "Send case claims (not media) to the Claude API to draft narrative text",

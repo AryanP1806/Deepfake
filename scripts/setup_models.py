@@ -108,15 +108,19 @@ def main(argv: list[str]) -> None:
     yes = "--yes" in argv
     keys = [a for a in argv if not a.startswith("--")] or ["yunet"]
     ensure_dirs()
+    from dfir.forensics import registry  # importing registers forensic-module plugins and the model weights they declare
+    registry.load_plugins()
+    builtin = {"yunet": lambda: setup_files("yunet"), "ufd": setup_ufd, "whisper": setup_whisper,
+               "spai": lambda: setup_files("spai"), "trufor": lambda: setup_files("trufor"), "sbi": lambda: setup_files("sbi")}
     for k in keys:
-        if k not in SIZES:
-            raise SystemExit(f"Unknown model key {k}. Choose from: {', '.join(SIZES)}")
-        if not confirm(f"Download '{k}' ({SIZES[k]}) into {MODELS_DIR}?", yes):
+        if k not in SIZES and k not in model_store.SPECS:
+            plug = [s for s in model_store.SPECS if s not in builtin]
+            raise SystemExit(f"Unknown model key {k}. Choose from: {', '.join(list(SIZES) + plug)}")
+        size = SIZES.get(k) or model_store.SPECS[k].size_note
+        if not confirm(f"Download '{k}' ({size}) into {MODELS_DIR}?", yes):
             print(f"  skipped {k}")
             continue
-        {"yunet": lambda: setup_files("yunet"), "ufd": setup_ufd, "whisper": setup_whisper,
-         "spai": lambda: setup_files("spai"), "trufor": lambda: setup_files("trufor"),
-         "sbi": lambda: setup_files("sbi")}[k]()
+        (builtin.get(k) or (lambda k=k: setup_files(k)))()  # a plugin's weights are fetched and SHA-256 pinned like any other
 
 
 if __name__ == "__main__":

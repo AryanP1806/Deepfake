@@ -25,7 +25,7 @@ def build_narrative(s: Session, case_id: str) -> dict:
     case = s.get(Case, case_id)
     media = s.exec(select(Media).where(Media.case_id == case_id)).all()
     primary = [m for m in media if m.role == "primary"]
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     gen = load_genealogy(case_id)
     all_claims = load_claims(s, case_id)
 

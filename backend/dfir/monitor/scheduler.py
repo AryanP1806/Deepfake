@@ -21,7 +21,7 @@ def run_monitor(case_id: str, progress=lambda f, m: None) -> dict:
 
     alerts = []
     with session() as s:
-        locs = [l for l in s.exec(select(Location).where(Location.case_id == case_id)).all()]
+        locs = [l for l in s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()]  # noqa: E712
         before_media = {m.sha256 for m in s.exec(select(Media).where(Media.case_id == case_id)).all()}
         for i, loc in enumerate(locs):
             progress(i / max(1, len(locs)) * 0.8, f"Re-checking {loc.url[:60]}")

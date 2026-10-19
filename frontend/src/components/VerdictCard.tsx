@@ -26,14 +26,14 @@ export interface Verdict {
   detail?: string
 }
 
-// Status palette (fixed, never themed); always paired with an icon + text label, never colour alone.
+// Verdict colours are theme tokens (validated per mode); always paired with an icon + text label, never colour alone.
 export const VERDICT_STYLE: Record<string, { color: string; icon: typeof ShieldAlert; short: string }> = {
-  fake: { color: '#d03b3b', icon: AlertOctagon, short: 'Fake' },
-  likely_fake: { color: '#ec835a', icon: ShieldAlert, short: 'Likely fake' },
-  uncertain: { color: '#fab219', icon: HelpCircle, short: 'Uncertain' },
-  likely_real: { color: '#7fbf6a', icon: ShieldCheck, short: 'Likely real' },
-  real: { color: '#0ca30c', icon: CheckCircle2, short: 'Real' },
-  not_analysed: { color: '#8a8983', icon: Info, short: 'Not analysed' },
+  fake: { color: 'var(--color-v-fake)', icon: AlertOctagon, short: 'Fake' },
+  likely_fake: { color: 'var(--color-v-likely-fake)', icon: ShieldAlert, short: 'Likely fake' },
+  uncertain: { color: 'var(--color-v-uncertain)', icon: HelpCircle, short: 'Uncertain' },
+  likely_real: { color: 'var(--color-v-likely-real)', icon: ShieldCheck, short: 'Likely real' },
+  real: { color: 'var(--color-v-real)', icon: CheckCircle2, short: 'Real' },
+  not_analysed: { color: 'var(--color-v-na)', icon: Info, short: 'Not analysed' },
 }
 
 /** Percent shown to people: never 0 or 100 unless there is provenance proof. */
@@ -70,7 +70,7 @@ function Meter({ p, proof }: { p: number; proof?: boolean }) {
         <div className="flex h-3 gap-[2px] overflow-hidden rounded-full">
           {zones.map((z) => { const w = z.to - from; from = z.to; return <div key={z.label} style={{ width: `${w}%`, background: z.c, opacity: 0.85 }} /> })}
         </div>
-        <div className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-bg bg-ink shadow" style={{ left: `${pct}%` }} />
+        <div className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-surface bg-ink" style={{ left: `${pct}%` }} />
       </div>
       <div className="mt-1.5 flex text-[10.5px] text-ink-3">
         {(() => { let f = 0; return zones.map((z) => { const w = z.to - f; f = z.to; return <span key={z.label} style={{ width: `${w}%` }} className="text-center">{z.label}</span> }) })()}
@@ -108,14 +108,14 @@ export function VerdictCard({ v, right, onShowWhere, showWhere }: { v?: Verdict 
   const Icon = st.icon
   const fakeSide = v.p_fake >= 0.5
   return (
-    <div className="card overflow-hidden" style={{ borderColor: st.color, borderWidth: 1.5 }}>
-      <div className="p-5" style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${st.color} 14%, transparent), transparent 60%)` }}>
+    <div className="card overflow-hidden" style={{ borderColor: st.color, borderWidth: 1.5 }} role="region" aria-label="Verdict">
+      <div className="p-5" style={{ background: `color-mix(in srgb, ${st.color} 7%, transparent)` }}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="label">Verdict</div>
             <div className="mt-1 flex items-center gap-2.5">
               <Icon size={30} style={{ color: st.color }} />
-              <span className="text-[32px] font-bold leading-none tracking-tight">{v.headline}</span>
+              <span className="display text-[30px] font-semibold leading-tight">{v.headline}</span>
             </div>
             {v.kind && <div className="mt-1.5 text-[15px] font-medium text-ink-2">{v.kind}</div>}
           </div>

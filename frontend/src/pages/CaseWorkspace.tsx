@@ -1,9 +1,9 @@
 import {
-  Activity, Archive, FlaskConical, Bell, Compass, FileWarning, GitBranch, Globe2, LayoutDashboard, ListChecks, Network, ScanSearch,
-  Send, ShieldAlert, Upload, UserSearch,
+  Activity, Archive, ChevronDown, FlaskConical, Bell, Compass, FileWarning, GitBranch, Globe2, HandHelping, LayoutDashboard, ListChecks,
+  Camera, Cpu, Microscope, MoreHorizontal, Moon, Network, Radar, ScanSearch, Send, Settings as SettingsIcon, ShieldAlert, Sun, Trash2, Upload, Users,
 } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import { NavLink, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { api, INCIDENT_TYPES } from '../api'
 import { Brand } from '../components/Brand'
 import { Spinner, StatusLegend } from '../components/ui'
@@ -22,21 +22,35 @@ import Overview from '../views/Overview'
 import Propagation from '../views/Propagation'
 import { casePath } from '../lib/paths'
 import { AnalysisStatus } from '../components/AnalysisStatus'
+import { DeleteCaseDialog } from '../components/DeleteCaseDialog'
+import { InvestigationProgress } from '../components/InvestigationProgress'
+import Spread from '../views/Spread'
+import Takedown from '../views/Takedown'
+import Source from '../views/Source'
+import Forensics from '../views/Forensics'
+import Generator from '../views/Generator'
 import Timeline from '../views/Timeline'
+import { usePrefs } from '../prefs'
 
+/** Main path (plain language) first; the specialist tools live under "Advanced". */
 export const STEPS = [
-  { path: 'overview', label: 'Case overview', chain: 'Summary', icon: LayoutDashboard },
-  { path: 'decomposition', label: 'Forensic decomposition', chain: 'Detect · Explain', icon: ScanSearch },
-  { path: 'genealogy', label: 'Media genealogy', chain: 'Trace', icon: GitBranch },
-  { path: 'propagation', label: 'Propagation', chain: 'Trace', icon: Globe2 },
-  { path: 'graph', label: 'Evidence graph', chain: 'Connect', icon: Network },
-  { path: 'timeline', label: 'Reconstruction', chain: 'Investigate', icon: Activity },
-  { path: 'leads', label: 'Attribution leads', chain: 'Investigate', icon: UserSearch },
-  { path: 'gaps', label: 'Evidence gaps', chain: 'Prove', icon: FileWarning },
-  { path: 'evidence', label: 'Evidence package', chain: 'Preserve', icon: Archive },
-  { path: 'complaint', label: 'Complaint', chain: 'Report', icon: Send },
-  { path: 'act', label: 'What to do now', chain: 'Act', icon: Compass },
-  { path: 'monitor', label: 'Monitoring', chain: 'Monitor', icon: Bell },
+  { path: 'overview', label: 'Overview', hint: 'What we found, in one page', icon: LayoutDashboard, group: 'main' },
+  { path: 'decomposition', label: '1 · Is it fake?', hint: 'AI and editing checks', icon: ScanSearch, group: 'main' },
+  { path: 'spread', label: '2 · Where it appeared', hint: 'Copies, versions, places', icon: Radar, group: 'main' },
+  { path: 'takedown', label: '3 · Take action', hint: 'Get it removed, register the complaint', icon: HandHelping, group: 'main' },
+  { path: 'forensics', label: 'Forensic modules', hint: 'Sensor noise, camera, editing, video, audio, provenance', icon: Microscope, group: 'deep' },
+  { path: 'source', label: 'Device & source', hint: 'Camera, software, timestamps', icon: Camera, group: 'deep' },
+  { path: 'generator', label: 'AI generator', hint: 'Which tool family made it?', icon: Cpu, group: 'deep' },
+  { path: 'leads', label: 'Accounts & leads', hint: 'Roles, graph, ranked leads', icon: Users, group: 'deep' },
+  { path: 'complaint', label: 'Complaint form', hint: 'Prepared text for the portal', icon: Send, group: 'adv' },
+  { path: 'evidence', label: 'Evidence package', hint: 'Preserve · hashes · custody', icon: Archive, group: 'adv' },
+  { path: 'timeline', label: 'Timeline', hint: 'What happened when', icon: Activity, group: 'adv' },
+  { path: 'genealogy', label: 'Media genealogy', hint: 'How the versions differ', icon: GitBranch, group: 'adv' },
+  { path: 'propagation', label: 'Pages & captures', hint: 'Captured pages, archive records', icon: Globe2, group: 'adv' },
+  { path: 'graph', label: 'Evidence graph', hint: 'Connections between items', icon: Network, group: 'adv' },
+  { path: 'gaps', label: 'Evidence gaps', hint: 'What is still unknown', icon: FileWarning, group: 'adv' },
+  { path: 'act', label: 'Checklist', hint: 'Do / do not list', icon: Compass, group: 'adv' },
+  { path: 'monitor', label: 'Monitoring', hint: 'Watch for removals and re-uploads', icon: Bell, group: 'adv' },
 ]
 
 export default function CaseWorkspace() {
@@ -48,6 +62,13 @@ export default function CaseWorkspace() {
   const { withConsent, dialog } = useConsentGate(caseId)
   const { items, toast } = useToasts()
   const [uploading, setUploading] = useState(false)
+  const [advOpen, setAdvOpen] = useState(false)
+  const [menu, setMenu] = useState(false)
+  const [del, setDel] = useState(false)
+  const [keyOpen, setKeyOpen] = useState(false)
+  const nav = useNavigate()
+  const { mode, set: setPrefs } = usePrefs()
+  const { data: plan } = useApi<any>(`/api/cases/${caseId}/takedown`, [tick])
 
   const upload = async (f: File, role = 'primary') => {
     setUploading(true)
@@ -72,71 +93,117 @@ export default function CaseWorkspace() {
   return (
     <Provider value={{ data, caseId, tick, refresh, withConsent, toast }}>
       <div className="flex h-full">
-        <aside className="flex w-64 shrink-0 flex-col border-r border-line bg-surface/60">
-          <div className="flex items-center justify-between border-b border-line p-4"><Brand small /><NavLink to="/lab" className="flex items-center gap-1 text-[11px] text-ink-3 hover:text-ink"><FlaskConical size={12} /> Lab</NavLink></div>
-          <div className="border-b border-line p-4">
-            <div className="flex items-center gap-2">
-              {c.is_demo && <span className="rounded border border-line-strong px-1 text-[10px] font-bold text-ink-3">DEMO</span>}
-              <span className="text-[11px] text-ink-3">{INCIDENT_TYPES[c.incident_type]}</span>
+        <aside className="flex w-[17rem] shrink-0 flex-col border-r border-line bg-surface" aria-label="Case navigation">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3.5">
+            <Brand small />
+            <div className="flex items-center gap-0.5">
+              <NavLink to="/lab" className="btn btn-quiet !min-h-0 !p-1.5" title="Lab: run a single file without a case"><FlaskConical size={15} /><span className="sr-only">Lab</span></NavLink>
+              <NavLink to="/settings" className="btn btn-quiet !min-h-0 !p-1.5" title="Settings and appearance"><SettingsIcon size={15} /><span className="sr-only">Settings</span></NavLink>
             </div>
-            <div className="mt-1 line-clamp-3 text-[13px] font-semibold leading-snug">{c.title}</div>
-            <div className="mono mt-1 text-[10px] text-ink-3">{c.id}</div>
           </div>
-          <nav className="flex-1 overflow-y-auto p-2">
-            {STEPS.map((s, i) => (
-              <NavLink key={s.path} to={casePath(caseId, s.path)}
-                className={({ isActive }) => `group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition ${isActive ? 'bg-raised text-ink' : 'text-ink-2 hover:bg-raised/60'}`}>
-                <span className="mono w-4 text-right text-[10px] text-ink-3">{i + 1}</span>
-                <s.icon size={15} className="shrink-0" />
-                <span className="flex-1 leading-tight">{s.label}<span className="block text-[10px] uppercase tracking-wider text-ink-3">{s.chain}</span></span>
+          <div className="border-b border-line px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              {c.is_demo && <span className="tag">DEMO</span>}
+              <span className="label">{INCIDENT_TYPES[c.incident_type]}</span>
+            </div>
+            <div className="mt-1.5 flex items-start justify-between gap-2">
+              <h1 className="display line-clamp-3 text-[17px] font-semibold leading-snug">{c.title}</h1>
+              <div className="relative">
+                <button className="btn btn-quiet !min-h-0 !p-1.5" title="Case options" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu(!menu)}><MoreHorizontal size={15} /><span className="sr-only">Case options</span></button>
+                {menu && (
+                  <div role="menu" className="pop absolute right-0 top-9 z-30 w-48 p-1" onMouseLeave={() => setMenu(false)}>
+                    <button role="menuitem" className="nav-item w-full text-left text-[13px]" onClick={() => { setMenu(false); nav('/') }}><LayoutDashboard size={14} /> All cases</button>
+                    <button role="menuitem" className="nav-item w-full text-left text-[13px] text-crit" onClick={() => { setMenu(false); setDel(true) }}><Trash2 size={14} /> Archive or delete…</button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mono mt-1 text-[10.5px] text-ink-3">{c.id}</div>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-2 py-3">
+            <div className="label px-3 pb-1">Review</div>
+            {STEPS.filter((x) => x.group === 'main').map((st) => (
+              <NavLink key={st.path} to={casePath(caseId, st.path)} className="nav-item mb-0.5 text-[13.5px]">
+                <st.icon size={16} className="shrink-0" aria-hidden />
+                <span className="flex-1 font-medium leading-tight">{st.label}<span className="block text-[11px] font-normal text-ink-3">{st.hint}</span></span>
+                {st.path === 'takedown' && plan?.summary?.overdue > 0 && <span className="rounded-full bg-crit px-1.5 py-0.5 text-[10px] font-bold text-crit-ink">{plan.summary.overdue} overdue</span>}
+              </NavLink>
+            ))}
+            <div className="label mt-4 px-3 pb-1">Investigate deeper</div>
+            {STEPS.filter((x) => x.group === 'deep').map((st) => (
+              <NavLink key={st.path} to={casePath(caseId, st.path)} className="nav-item mb-0.5 text-[13px]">
+                <st.icon size={15} className="shrink-0" aria-hidden />
+                <span className="flex-1 leading-tight">{st.label}<span className="block text-[10.5px] text-ink-3">{st.hint}</span></span>
+              </NavLink>
+            ))}
+            <button className="label mt-4 flex w-full items-center gap-1.5 px-3 py-1.5 hover:text-ink" aria-expanded={advOpen} onClick={() => setAdvOpen(!advOpen)}>
+              <ChevronDown size={12} className={advOpen ? '' : '-rotate-90'} aria-hidden /> Advanced &amp; evidence
+            </button>
+            {(advOpen || STEPS.some((x) => x.group === 'adv' && window.location.pathname.includes(`/${x.path}`))) && STEPS.filter((x) => x.group === 'adv').map((st) => (
+              <NavLink key={st.path} to={casePath(caseId, st.path)} className="nav-item text-[12.5px]">
+                <st.icon size={14} className="shrink-0" aria-hidden />
+                <span className="flex-1 leading-tight">{st.label}</span>
               </NavLink>
             ))}
           </nav>
-          <div className="border-t border-line p-3">
+          <div className="space-y-1.5 border-t border-line p-3">
             <label className={`btn w-full justify-center ${uploading ? 'opacity-50' : ''}`}>
-              <Upload size={14} /> {uploading ? 'Preserving…' : 'Add media file'}
+              <Upload size={14} aria-hidden /> {uploading ? 'Preserving…' : 'Add media file'}
               <input type="file" hidden accept="image/*,video/*,audio/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
             </label>
-            <label className="btn mt-1.5 w-full justify-center text-ink-3">
-              <Upload size={14} /> Add authentic reference
+            <label className="btn btn-quiet w-full justify-center">
+              <Upload size={14} aria-hidden /> Add authentic reference
               <input type="file" hidden accept="image/*,video/*,audio/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], 'reference')} />
             </label>
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className="sticky top-0 z-20 border-b border-line bg-bg/90 px-8 py-2.5 backdrop-blur">
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 overflow-y-auto outline-none">
+          <div className="sticky top-0 z-20 border-b border-line bg-bg px-8 py-2">
             <div className="flex items-center justify-between gap-4">
-              <StatusLegend />
-              {running.length > 0 && (
-                <div className="flex items-center gap-3">
-                  {running.slice(0, 2).map((j) => (
-                    <div key={j.job_id} className="w-56">
-                      <div className="flex justify-between text-[11px] text-ink-3"><span className="truncate">{j.kind ?? 'job'} · {j.message ?? j.status}</span><span>{Math.round((j.progress ?? 0) * 100)}%</span></div>
-                      <div className="mt-1 h-1 overflow-hidden rounded bg-raised"><div className="h-full bg-ink-2 transition-all" style={{ width: `${(j.progress ?? 0.03) * 100}%` }} /></div>
-                    </div>
-                  ))}
+              <div className="flex min-w-0 items-center gap-2 text-[12.5px] text-ink-3">
+                <NavLink to="/" className="hover:text-ink">All cases</NavLink><span aria-hidden>/</span><span className="truncate text-ink-2">{c.title}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {running.slice(0, 2).map((j) => (
+                  <div key={j.job_id} className="w-52" role="status">
+                    <div className="flex justify-between text-[11px] text-ink-3"><span className="truncate">{j.kind ?? 'job'} · {j.message ?? j.status}</span><span>{Math.round((j.progress ?? 0) * 100)}%</span></div>
+                    <div className="meter mt-1" aria-hidden><i style={{ width: `${Math.max(3, (j.progress ?? 0.03) * 100)}%` }} /></div>
+                  </div>
+                ))}
+                <div className="relative">
+                  <button className="btn btn-quiet !min-h-0 !px-2 !py-1 text-[12px]" aria-expanded={keyOpen} onClick={() => setKeyOpen(!keyOpen)}>Evidence key</button>
+                  {keyOpen && <div className="pop absolute right-0 top-9 z-30 w-[26rem] p-4" onMouseLeave={() => setKeyOpen(false)}><StatusLegend stacked /></div>}
                 </div>
-              )}
+                <button className="btn btn-quiet !min-h-0 !p-1.5" onClick={() => setPrefs({ mode: mode === 'dark' ? 'light' : 'dark' })} title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+                  {mode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}<span className="sr-only">Toggle light and dark mode</span>
+                </button>
+              </div>
             </div>
           </div>
           {data.safety_notices.length > 0 && (
             <div className="space-y-2 px-8 pt-5">
               {data.safety_notices.map((n) => (
-                <div key={n.title} className={`flex gap-3 rounded-lg border p-3 text-sm ${n.level === 'critical' ? 'border-crit bg-crit/10' : 'border-warn/60 bg-warn/5'}`}>
-                  <ShieldAlert size={16} className={n.level === 'critical' ? 'text-crit' : 'text-warn'} />
+                <div key={n.title} role="note" className={`flex gap-3 rounded-lg border p-3 text-sm ${n.level === 'critical' ? 'border-crit bg-crit/10' : 'border-warn/60 bg-warn/5'}`}>
+                  <ShieldAlert size={16} className={n.level === 'critical' ? 'text-crit' : 'text-warn'} aria-hidden />
                   <div><span className="font-semibold">{n.title}. </span><span className="text-ink-2">{n.text}</span></div>
                 </div>
               ))}
             </div>
           )}
           <div className="px-8 py-6">
+            <InvestigationProgress caseId={caseId} onChange={refresh} kick={tick} />
             <AnalysisStatus caseId={caseId} onChange={refresh} kick={tick} />
             <Routes>
               <Route index element={<Navigate to={casePath(caseId)} replace />} />
               <Route path="overview" element={<Overview />} />
               <Route path="decomposition" element={<Decomposition />} />
               <Route path="decomposition/:mediaId" element={<Decomposition />} />
+              <Route path="spread" element={<Spread />} />
+              <Route path="takedown" element={<Takedown />} />
+              <Route path="forensics" element={<Forensics />} />
+              <Route path="source" element={<Source />} />
+              <Route path="generator" element={<Generator />} />
               <Route path="genealogy" element={<Genealogy />} />
               <Route path="propagation" element={<Propagation />} />
               <Route path="graph" element={<Graph />} />
@@ -153,6 +220,7 @@ export default function CaseWorkspace() {
         </main>
       </div>
       {dialog}
+      {del && <DeleteCaseDialog caseId={caseId} title={c.title} onClose={() => setDel(false)} onDone={() => nav('/')} />}
       <Toasts items={items} />
     </Provider>
   )

@@ -21,8 +21,9 @@ def norm_handle(h: str) -> str:
 
 def build_graph(s: Session, case_id: str) -> nx.MultiDiGraph:
     G = nx.MultiDiGraph()
-    media = s.exec(select(Media).where(Media.case_id == case_id)).all()
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    hidden = {l.id for l in s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == True)).all()}  # noqa: E712
+    media = [m for m in s.exec(select(Media).where(Media.case_id == case_id)).all() if m.location_id not in hidden]
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     thumbs = {a.media_id: a.sha256 for a in s.exec(select(Artifact).where(Artifact.case_id == case_id,
                                                                          Artifact.kind == "thumb")).all()}
 

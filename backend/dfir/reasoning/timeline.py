@@ -39,7 +39,7 @@ def _iso(d: datetime | None) -> str | None:
 def build_timeline(s: Session, case_id: str) -> dict:
     case = s.get(Case, case_id)
     media = {m.id: m for m in s.exec(select(Media).where(Media.case_id == case_id)).all()}
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     loc_by_id = {l.id: l for l in locs}
     ev: list[dict] = []
 

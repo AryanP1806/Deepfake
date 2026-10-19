@@ -38,7 +38,8 @@ def add_locations(s: Session, case_id: str, items: list[dict], discovered_via: s
                        account_handle=(it.get("handle") or cls["handle"] or "").lstrip("@"),
                        caption=it.get("caption", ""), notes=it.get("notes", ""), discovered_via=discovered_via,
                        published_at=parse_time(it.get("published_at")),
-                       published_source="investigator note" if it.get("published_at") else "")
+                       published_source="investigator note" if it.get("published_at") else "",
+                       seed=bool(it.get("seed")), depth=int(it.get("depth") or 0), found_from=it.get("found_from", ""))
         s.add(loc)
         existing.add(url)
         out.append(loc)
@@ -118,7 +119,7 @@ def enrich(case_id: str) -> dict:
 
 
 def run_adapter_search(case_id: str, adapter_name: str, *, query: str | None = None, media_id: str | None = None,
-                       channel: str | None = None) -> dict:
+                       channel: str | None = None, limit: int | None = None) -> dict:
     a = get_adapter(adapter_name)
     nr = a.available()
     if nr:
@@ -144,6 +145,7 @@ def run_adapter_search(case_id: str, adapter_name: str, *, query: str | None = N
                                         "capture a public post of this media first."}}
                 cands = a.search_image_url(public)
             v.custody.append("external.search", tool=a.name, item_sha256=m.sha256, details={"adapter": a.name})
+        cands = cands[:limit] if limit else cands
         locs = add_locations(s, case_id, [{"url": c.url, "notes": f"{c.source}: {c.title} {c.snippet}".strip()[:500]}
                                           for c in cands], discovered_via=a.name)
     return {"candidates": len(cands), "new_locations": [l.id for l in locs],

@@ -71,7 +71,7 @@ provisions:
     law: Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021
     section: "Rule 3(2)(b)"
     title: Removal of intimate or impersonating (including artificially morphed) content on the depicted person's complaint
-    relevance: Intermediaries are required to act within 24 hours on a complaint by (or on behalf of) the depicted person about content that shows them in intimate or sexual content, or impersonates them, including artificially morphed images.
+    relevance: Intermediaries are required to remove such content within 2 hours of a complaint by (or on behalf of) the depicted person about content that shows them in intimate or sexual content, or impersonates them, including artificially morphed images (shortened from 24 hours by the 2026 amendment, G.S.R. 120(E), in force 20 Feb 2026). Confirm the current rule text.
     incident_types: [ncii, sextortion, impersonation_fraud]
     source: https://www.meity.gov.in/
     last_verified: null

@@ -115,7 +115,8 @@ def is_verified(g: Geometry | None) -> bool:
     return bool(g and g.inliers >= 25 and g.inlier_ratio >= 0.25 and 0.05 < g.scale_b_to_a < 20)
 
 
-def compare_images(a: Image.Image, b: Image.Image, fa: dict, fb: dict, emb_cos: float | None = None) -> MatchResult:
+def compare_images(a: Image.Image, b: Image.Image, fa: dict, fb: dict, emb_cos: float | None = None,
+                   gate_cos: float | None = None) -> MatchResult:
     d = hamming_hex(fa["pdq"], fb["pdq"])
     dm = hamming_hex(fa["pdq"], fb["pdq_mirror"])
     scores = {"pdq": d, "pdq_mirror": dm, "cosine": emb_cos}
@@ -124,6 +125,10 @@ def compare_images(a: Image.Image, b: Image.Image, fa: dict, fb: dict, emb_cos: 
         tier = "hash"
     elif emb_cos is not None and emb_cos >= 0.88:
         tier = "embedding"
+    # Copy discovery screens many unrelated web images: skip the slow geometric step when both the perceptual hash AND the
+    # CLIP embedding say the pictures are clearly different (crops keep CLIP similarity high, so they still get through).
+    if gate_cos is not None and tier == "none" and min(d, dm) > PDQ_LOOSE and emb_cos is not None and emb_cos < gate_cos:
+        return MatchResult(False, "none", False, scores, None)
     # Always try geometric verification: crops and screen recordings defeat global hashes.
     g = geometric_verify(a, b)
     if g:

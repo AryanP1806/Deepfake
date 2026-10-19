@@ -1,11 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="neomorphism" data-mode="light" data-motion="system">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>DFIR — Deepfake Investigation & Response</title>
+    <!-- Apply the saved appearance before first paint so there is no flash of the wrong theme. The full logic lives in src/lib/theme.ts. -->
+    <script>
+      (function () {
+        var d = document.documentElement;
+        try {
+          var p = JSON.parse(localStorage.getItem('dfir.prefs') || '{}');
+          var theme = ['workbench', 'neomorphism', 'claymorphism'].indexOf(p.theme) >= 0 ? p.theme : 'neomorphism';
+          var mode = p.mode || 'light';
+          var res = mode === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode;
+          d.setAttribute('data-theme', theme);
+          d.setAttribute('data-mode', res);
+          d.setAttribute('data-motion', p.motion || 'system');
+          var cache = JSON.parse(localStorage.getItem('dfir.themecache') || '{}');
+          var vars = cache[theme + ':' + res + ':' + (p.accent || '')];
+          if (vars) for (var k in vars) d.style.setProperty(k, vars[k]);
+        } catch (e) {
+          d.setAttribute('data-mode', 'light');
+        }
+      })();
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

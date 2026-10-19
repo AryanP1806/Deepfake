@@ -27,6 +27,7 @@ dependencies = [
     "dnspython>=2.6",
     "pdqhash>=0.2.8",
     "sse-starlette>=3.5.0",
+    "pywavelets>=1.5",
 ]
 
 [project.optional-dependencies]

@@ -174,7 +174,7 @@ def _embedding_cos(a_id: str, b_id: str, imgs: dict) -> float | None:
         return None
 
 
-def compare_pair(s: Session, case_id: str, a: Media, b: Media, imgs: dict) -> MatchEdge | None:
+def compare_pair(s: Session, case_id: str, a: Media, b: Media, imgs: dict, gate_cos: float | None = None) -> MatchEdge | None:
     fa, fb = a.fingerprints or {}, b.fingerprints or {}
     v = vault_for(case_id)
     res = None
@@ -190,7 +190,7 @@ def compare_pair(s: Session, case_id: str, a: Media, b: Media, imgs: dict) -> Ma
             ra = fa.get("image") or fa.get("video", {}).get("rep")
             rb = fb.get("image") or fb.get("video", {}).get("rep")
             if ra and rb:
-                res = gm.compare_images(ia, ib, ra, rb, _embedding_cos(a.id, b.id, imgs))
+                res = gm.compare_images(ia, ib, ra, rb, _embedding_cos(a.id, b.id, imgs), gate_cos)
             # image vs video: does the still appear among the video's frames?
             if (res is None or not res.matched) and {a.modality, b.modality} == {"image", "video"}:
                 img_m, vid_m = (a, b) if a.modality == "image" else (b, a)
@@ -231,25 +231,71 @@ def compare_pair(s: Session, case_id: str, a: Media, b: Media, imgs: dict) -> Ma
     return edge
 
 
-def run_genealogy(case_id: str, progress: Progress = _noop) -> dict:
+def _extend_edges(s: Session, case_id: str, media: list[Media], new_ids: set[str], imgs: dict, progress: Progress) -> None:
+    """Incremental matching for newly discovered media: compare each new file with the suspect media and copies
+    already verified (growing outward), instead of with every other file. Cost grows with the number of new files,
+    not with the square of all files."""
+    order = {m.id: i for i, m in enumerate(media)}
+    by_id = {m.id: m for m in media}
+    adj: dict[str, set[str]] = {}
+    for e in s.exec(select(MatchEdge).where(MatchEdge.case_id == case_id, MatchEdge.verified == True)).all():  # noqa: E712
+        adj.setdefault(e.a_media, set()).add(e.b_media)
+        adj.setdefault(e.b_media, set()).add(e.a_media)
+    comp = [m.id for m in media if m.role == "primary"]  # (a page may re-serve the suspect file itself: still the start)
+    seen = set(comp)
+    stack = list(comp)
+    while stack:
+        for n in adj.get(stack.pop(), ()):
+            if n not in seen and n in by_id:
+                seen.add(n)
+                comp.append(n)
+                stack.append(n)
+    remaining = [i for i in new_ids if i in by_id and i not in seen]
+    done = 0
+    changed = True
+    while changed and remaining:
+        changed = False
+        for rid in list(remaining):
+            done += 1
+            progress(min(0.95, done / max(1, len(new_ids) * 2)), f"Comparing {by_id[rid].label[:30]}")
+            for cid in comp[:12]:
+                a, b = sorted((by_id[cid], by_id[rid]), key=lambda m: order[m.id])
+                e = compare_pair(s, case_id, a, b, imgs, gate_cos=0.72)
+                if e:
+                    s.add(e)
+                    s.commit()
+                    if e.verified:
+                        comp.append(rid)
+                        remaining.remove(rid)
+                        changed = True
+                        break
+
+
+def run_genealogy(case_id: str, progress: Progress = _noop, new_media_ids: list[str] | None = None) -> dict:
+    """Rebuild the copy relationships and family tree.
+
+    ``new_media_ids=None``: compare every pair (small cases, after re-analysis).
+    ``new_media_ids=[...]``: keep existing matches and only match those files (used by copy discovery)."""
     with session() as s:
         media = s.exec(select(Media).where(Media.case_id == case_id)).all()
         media = [m for m in media if m.fingerprints]
-        for e in s.exec(select(MatchEdge).where(MatchEdge.case_id == case_id)).all():
-            s.delete(e)
-        delete_claims(s, case_id, "genealogy")
-        s.commit()
-        pairs = list(itertools.combinations(media, 2))
         imgs: dict = {}
-        edges = []
-        for i, (a, b) in enumerate(pairs):
-            progress(i / max(1, len(pairs)), f"Comparing {a.label[:20]} ↔ {b.label[:20]}")
-            e = compare_pair(s, case_id, a, b, imgs)
-            if e:
-                s.add(e)
-                s.commit()
-                edges.append(e)
-        s.commit()
+        if new_media_ids is None:
+            for e in s.exec(select(MatchEdge).where(MatchEdge.case_id == case_id)).all():
+                s.delete(e)
+            delete_claims(s, case_id, "genealogy")
+            s.commit()
+            for i, (a, b) in enumerate(itertools.combinations(media, 2)):
+                progress(i / max(1, len(media) * (len(media) - 1) // 2), f"Comparing {a.label[:20]} ↔ {b.label[:20]}")
+                e = compare_pair(s, case_id, a, b, imgs)
+                if e:
+                    s.add(e)
+                    s.commit()
+        else:
+            delete_claims(s, case_id, "genealogy")
+            s.commit()
+            _extend_edges(s, case_id, media, set(new_media_ids), imgs, progress)
+        edges = s.exec(select(MatchEdge).where(MatchEdge.case_id == case_id)).all()
         nodes = [{"id": m.id, "time": _media_time(s, m)} for m in media]
         tree = build_tree(nodes, [{"id": e.id, "a": e.a_media, "b": e.b_media, "verified": e.verified, "tier": e.tier,
                                    "direction_score": e.transforms.get("direction_score", 0),

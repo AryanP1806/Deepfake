@@ -35,6 +35,7 @@ export interface Media {
   thumb?: string
   level?: string | null
   verdict?: import('./components/VerdictCard').Verdict | null
+  verdict_note?: string | null
   location_id?: string | null
 }
 
@@ -90,6 +91,7 @@ export const api = {
   post: <T = any>(u: string, b?: any) => req<T>('POST', u, b),
   put: <T = any>(u: string, b?: any) => req<T>('PUT', u, b),
   patch: <T = any>(u: string, b?: any) => req<T>('PATCH', u, b),
+  delete: <T = any>(u: string) => req<T>('DELETE', u),
 }
 
 export const vaultUrl = (caseId: string, sha?: string | null, download = false) =>
@@ -109,6 +111,16 @@ export const fmtTime = (iso?: string | null, withTz = true) => {
 
 export const fmtBytes = (n: number) =>
   n > 1e6 ? `${(n / 1e6).toFixed(1)} MB` : n > 1e3 ? `${(n / 1e3).toFixed(0)} KB` : `${n} B`
+
+/** Plain-language incident choices shown when opening a case (key = backend incident_type). */
+export const INCIDENT_CHOICES: { key: string; title: string; hint: string }[] = [
+  { key: 'ncii', title: 'Private or intimate images of me', hint: 'Fake or leaked nude / sexual images or videos' },
+  { key: 'impersonation_fraud', title: 'Someone is pretending to be me, or a money scam', hint: 'Fake profile, fake video of a boss or relative asking for money' },
+  { key: 'sextortion', title: 'Blackmail: "pay or I will leak it"', hint: 'Threats to share images or videos' },
+  { key: 'voice_clone_scam', title: 'A fake voice or call', hint: 'Cloned voice asking for money or secrets' },
+  { key: 'political_defamation', title: 'Fake news or political content', hint: 'A manipulated photo or video spreading as if it were real' },
+  { key: 'other', title: 'Not sure / something else', hint: '' },
+]
 
 export const INCIDENT_TYPES: Record<string, string> = {
   ncii: 'Intimate imagery (NCII / morphed)',

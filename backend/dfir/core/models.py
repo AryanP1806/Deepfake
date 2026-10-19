@@ -118,6 +118,10 @@ class Location(SQLModel, table=True):
     media_ids: list = JSONField([])  # all media items captured at this location
     discovered_via: str = "manual"  # manual | serpapi | tineye | wayback | monitor | ...
     notes: str = ""
+    seed: bool = False  # the link the user started from (its media becomes the case's primary media)
+    dismissed: bool = False  # user marked this candidate as unrelated
+    depth: int = 0  # discovery round that found it (0 = given by the user)
+    found_from: str = ""  # location id / source that led to it
     added_at: datetime = Field(default_factory=_now)
 
 
@@ -192,3 +196,27 @@ class Alert(SQLModel, table=True):
     created_at: datetime = Field(default_factory=_now)
     seen: bool = False
     data: dict = JSONField({})
+
+
+class Report(SQLModel, table=True):
+    """One report the USER made (or plans to make) to a platform, NCRP, police, bank... plus its follow-up.
+    The system never files anything: it records what the user did, the reference number they got, and the
+    deadline that follows, so nothing is forgotten and escalation is timely."""
+
+    id: str = Field(default_factory=lambda: _id("rpt"), primary_key=True)
+    case_id: str = Field(index=True)
+    key: str = Field(default="", index=True)  # plan action key, e.g. "ncrp", "platform:Instagram", "stopncii"
+    kind: str = "other"  # ncrp | platform | police | grievance_officer | gac | stopncii | bank | other
+    title: str = ""
+    target: str = ""  # platform / authority name
+    location_ids: list = JSONField([])
+    # planned | submitted | acknowledged | action_taken | removed | rejected | escalated | closed
+    status: str = "planned"
+    reference: str = ""  # ticket / acknowledgement number given by the recipient (user-entered)
+    submitted_at: Optional[datetime] = None
+    due_at: Optional[datetime] = None  # when a response/removal is expected (legal clock or user choice)
+    clock_basis: str = ""
+    notes: str = ""
+    history: list = JSONField([])  # [{at, status, note}] user-attested events
+    created_at: datetime = Field(default_factory=_now)
+    updated_at: datetime = Field(default_factory=_now)

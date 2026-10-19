@@ -4,7 +4,7 @@
   Only the URL, response metadata and (when explicitly allowed) a page screenshot with the
   media region obscured are kept. The user is routed to NCRP's women/child reporting route.
 * ``intimate`` (NCII): previews are blurred by default in the UI; StopNCII and the IT Rules
-  24-hour takedown route are surfaced.
+  2-hour takedown route (IT Rules 3(2)(b), as amended 2026) are surfaced.
 
 Propagation is limited to the public web; there is no Tor/dark-web crawling.
 """
@@ -53,8 +53,8 @@ class SafetyPolicy:
                 "title": "Intimate imagery (NCII)",
                 "text": ("Previews are blurred by default. StopNCII.org can create hashes on your own device so "
                          "participating platforms can block re-uploads without you sending the image to anyone. "
-                         "Under the IT Rules 2021, platforms are expected to act quickly on complaints from the person "
-                         "depicted about intimate or artificially morphed images. Verify the current rule text "
-                         "with a lawyer or the police."),
+                         "Under the IT Rules (as amended in 2026) platforms are expected to remove intimate or "
+                         "artificially morphed images within about 2 hours of a complaint from the person depicted. "
+                         "Verify the current rule text with a lawyer or the police."),
             })
         return out

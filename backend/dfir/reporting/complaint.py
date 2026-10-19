@@ -55,7 +55,7 @@ def _ist(d: datetime | None) -> str:
 def draft_complaint(s: Session, case_id: str) -> dict:
     case = s.get(Case, case_id)
     media = s.exec(select(Media).where(Media.case_id == case_id)).all()
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     v = vault_for(case_id)
     primary = [m for m in media if m.role == "primary"]
     minors = case.safety.get("minors_possible")

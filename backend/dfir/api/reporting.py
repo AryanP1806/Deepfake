@@ -100,10 +100,10 @@ def mark_submitted(case_id: str, body: Submitted, s: Session = Depends(get_sessi
     when = datetime.fromisoformat(body.submitted_at) if body.submitted_at else datetime.now(timezone.utc)
     c.state, c.ack_number, c.submitted_at = "submitted", body.ack_number, when
     s.add(c)
-    s.add(TimelineNote(case_id=case_id, at=when, title=f"Complaint submitted by user via {body.route}",
-                       detail=f"Acknowledgement number: {body.ack_number}", kind="report_submitted",
-                       data={"ack": body.ack_number, "route": body.route}))
     s.commit()
+    from ..reporting.tracker import upsert_report  # keeps the follow-up tracker in step (also writes the timeline entry)
+    upsert_report(s, case_id, {"key": "ncrp", "kind": "ncrp", "title": "NCRP complaint", "target": body.route,
+                               "status": "submitted", "reference": body.ack_number, "submitted_at": when.isoformat()})
     vault_for(case_id).custody.append("report.submitted_by_user", actor="investigator",
                                       details={"route": body.route, "ack_number": body.ack_number})
     return c

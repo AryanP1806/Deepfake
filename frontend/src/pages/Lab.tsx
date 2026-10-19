@@ -15,12 +15,12 @@ const OUTCOME: Record<string, { label: string; color: string }> = {
 
 export function TopNav({ active }: { active: 'cases' | 'lab' | 'settings' }) {
   const item = (to: string, k: string, label: string) => (
-    <Link to={to} className={`rounded-md px-3 py-1.5 text-[13px] font-medium ${active === k ? 'bg-raised text-ink' : 'text-ink-3 hover:text-ink'}`}>{label}</Link>
+    <Link to={to} aria-current={active === k ? 'page' : undefined} className="nav-item !px-3 !py-1.5 text-[13px] font-medium">{label}</Link>
   )
   return (
     <div className="flex items-center justify-between">
       <Brand />
-      <nav className="flex gap-1">{item('/', 'cases', 'Cases')}{item('/lab', 'lab', 'Lab · backend')}{item('/settings', 'settings', 'Settings')}</nav>
+      <nav aria-label="Main" className="flex gap-1">{item('/', 'cases', 'Cases')}{item('/lab', 'lab', 'Lab · backend')}{item('/settings', 'settings', 'Settings')}</nav>
     </div>
   )
 }

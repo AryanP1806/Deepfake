@@ -1,11 +1,11 @@
-import { AlertTriangle, ChevronDown, ChevronRight, CircleDashed, CircleDot, Eye, EyeOff, HelpCircle, Link2, ShieldCheck, Sparkles } from 'lucide-react'
+import { AlertTriangle, ChevronDown, ChevronRight, CircleDashed, CircleDot, Eye, EyeOff, HelpCircle, Link2, ShieldCheck, Waypoints } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { vaultUrl, type Claim, type Status } from '../api'
 
 export const STATUS: Record<Status, { color: string; dash: string; icon: typeof ShieldCheck; desc: string }> = {
   Verified: { color: 'var(--color-st-verified)', dash: '', icon: ShieldCheck, desc: 'Direct or cryptographic observation' },
   Corroborated: { color: 'var(--color-st-corroborated)', dash: '', icon: Link2, desc: 'Two or more independent sources agree' },
-  Inferred: { color: 'var(--color-st-inferred)', dash: '6 4', icon: Sparkles, desc: 'Derived by reasoning from other evidence' },
+  Inferred: { color: 'var(--color-st-inferred)', dash: '6 4', icon: Waypoints, desc: 'Derived by reasoning from other evidence' },
   Lead: { color: 'var(--color-st-lead)', dash: '2 4', icon: CircleDot, desc: 'Technical similarity only — follow up, do not conclude' },
   Unknown: { color: 'var(--color-st-unknown)', dash: '1 6', icon: HelpCircle, desc: 'Explicit gap — not established' },
 }
@@ -26,23 +26,25 @@ export function StatusBadge({ status, compact = false }: { status: Status; compa
   )
 }
 
-export function StatusLegend() {
+export function StatusLegend({ stacked = false }: { stacked?: boolean }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 text-xs text-ink-2">
+    <div className={stacked ? 'space-y-2 text-[12.5px] text-ink-2' : 'flex flex-wrap items-center gap-2 text-xs text-ink-2'}>
+      {stacked && <div className="label">How sure is each finding?</div>}
       {STATUS_ORDER.map((s) => (
-        <span key={s} className="flex items-center gap-1.5" title={STATUS[s].desc}>
+        <div key={s} className="flex items-center gap-2.5" title={STATUS[s].desc}>
           <StatusBadge status={s} />
-          <span className="hidden 2xl:inline text-ink-3">{STATUS[s].desc}</span>
-        </span>
+          {stacked && <span className="text-ink-3">{STATUS[s].desc}</span>}
+        </div>
       ))}
+      {stacked && <p className="pt-1 text-[11.5px] text-ink-3">Colour is never the only signal: each status also has its own icon, label and border style.</p>}
     </div>
   )
 }
 
 export const LEVEL_STYLE: Record<string, { color: string; label: string }> = {
   Strong: { color: 'var(--color-crit)', label: 'Strong indicators' },
-  Moderate: { color: '#ec835a', label: 'Moderate indicators' },
-  Weak: { color: 'var(--color-warn)', label: 'Weak indicators' },
+  Moderate: { color: 'var(--color-v-likely-fake)', label: 'Moderate indicators' },
+  Weak: { color: 'var(--color-v-uncertain)', label: 'Weak indicators' },
   Inconclusive: { color: 'var(--color-st-unknown)', label: 'Inconclusive' },
 }
 
@@ -76,7 +78,7 @@ export function Section({ title, subtitle, right, children, className = '' }: { 
     <section className={`card p-5 ${className}`}>
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
+          <h2 className="display text-[17px] font-semibold">{title}</h2>
           {subtitle && <p className="mt-0.5 text-[13px] text-ink-3">{subtitle}</p>}
         </div>
         {right}
@@ -91,8 +93,8 @@ export function PageHeader({ step, title, question, right }: { step: string; tit
     <div className="mb-5 flex items-end justify-between gap-4">
       <div>
         <div className="label">{step}</div>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-1 text-ink-3">{question}</p>
+        <h1 className="display mt-1 text-[26px] font-semibold leading-tight">{title}</h1>
+        <p className="mt-1.5 max-w-3xl text-ink-2">{question}</p>
       </div>
       {right}
     </div>
@@ -183,4 +185,18 @@ export function Kv({ k, v, mono = false }: { k: string; v: ReactNode; mono?: boo
 export function Pill({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'crit' | 'warn' | 'good' }) {
   const c = { neutral: 'var(--color-line-strong)', crit: 'var(--color-crit)', warn: 'var(--color-warn)', good: 'var(--color-good)' }[tone]
   return <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium text-ink-2" style={{ borderColor: c }}>{children}</span>
+}
+
+/** Shown instead of an endless spinner when a screen's data cannot be loaded. */
+export function LoadError({ what, error, onRetry }: { what: string; error: string; onRetry: () => void }) {
+  const missing = /^404/.test(error) || /Not Found/i.test(error)
+  return (
+    <div className="card max-w-2xl border-crit/60 p-5">
+      <div className="font-semibold">Could not load {what}.</div>
+      <p className="mt-1 text-[13px] text-ink-2">
+        {missing ? 'The backend does not know this screen yet. It is probably still running the old version: restart it (see the red banner at the top), then try again.' : error}
+      </p>
+      <button className="btn mt-3" onClick={onRetry}>Try again</button>
+    </div>
+  )
 }

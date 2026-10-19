@@ -161,7 +161,7 @@ function PropagationMap({ locs, gen, caseId, blur, onSelect }: { locs: Loc[]; ge
         <defs><marker id="parr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--color-ink-3)" /></marker></defs>
         {geo.lanes.map((ln, i) => (
           <g key={ln}>
-            <rect x={0} y={geo.top + i * geo.laneH} width={geo.W} height={geo.laneH} fill={i % 2 ? 'transparent' : '#ffffff05'} />
+            <rect x={0} y={geo.top + i * geo.laneH} width={geo.W} height={geo.laneH} fill={i % 2 ? 'transparent' : 'color-mix(in srgb, var(--color-ink) 4%, transparent)'} />
             <text x={10} y={geo.top + i * geo.laneH + geo.laneH / 2 + 4} fontSize={12} fill="var(--color-ink-2)" fontWeight={600}>{ln}</text>
           </g>
         ))}

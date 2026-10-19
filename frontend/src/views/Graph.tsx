@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { vaultUrl, type Status } from '../api'
 import { Kv, PageHeader, Section, Spinner, STATUS, StatusBadge } from '../components/ui'
 import { useCase } from '../context'
+import { useThemeVersion } from '../prefs'
 import { useApi } from '../hooks'
 
 const TYPE: Record<string, { label: string; shape: string; size: number }> = {
@@ -27,6 +28,7 @@ const css = (v: string) => getComputedStyle(document.documentElement).getPropert
 export default function Graph() {
   const { caseId, data: cd, tick } = useCase()
   const { data } = useApi<any>(`/api/cases/${caseId}/graph`, [tick])
+  const themeV = useThemeVersion()
   const ref = useRef<HTMLDivElement>(null)
   const cyRef = useRef<cytoscape.Core | null>(null)
   const [sel, setSel] = useState<any>(null)
@@ -52,15 +54,15 @@ export default function Graph() {
       elements,
             style: [
         { selector: 'node', style: {
-          'background-color': '#2a2a27', 'border-color': '#5a5953', 'border-width': 1.5, label: 'data(label)', color: css('--color-ink-2'),
+          'background-color': css('--color-raised'), 'border-color': css('--color-line-strong'), 'border-width': 1.5, label: 'data(label)', color: css('--color-ink-2'),
           'font-size': 9, 'text-valign': 'bottom', 'text-margin-y': 4, 'text-max-width': '110px', 'text-wrap': 'ellipsis', width: 24, height: 24,
         } },
         ...Object.entries(TYPE).map(([t, v]) => ({ selector: `node[type="${t}"]`, style: { shape: v.shape as any, width: v.size, height: v.size } })),
-        { selector: 'node[type="media"]', style: { 'background-color': '#33322f', 'border-width': 2, 'border-color': '#c3c2b7' } },
+        { selector: 'node[type="media"]', style: { 'background-color': css('--color-raised'), 'border-width': 2, 'border-color': css('--color-ink-2') } },
         { selector: 'node[type="media"][bg]', style: { 'background-image': 'data(bg)', 'background-fit': 'cover' } },
-        { selector: 'node[role="primary"]', style: { 'border-color': '#ffffff', 'border-width': 4, width: 70, height: 70 } },
-        { selector: 'node[type="account"]', style: { 'background-color': '#3b3a36', 'border-color': '#f2f2ee' } },
-        { selector: 'node[type="generator"]', style: { 'background-color': css('--color-crit'), 'border-color': '#fff' } },
+        { selector: 'node[role="primary"]', style: { 'border-color': css('--color-ink'), 'border-width': 4, width: 70, height: 70 } },
+        { selector: 'node[type="account"]', style: { 'background-color': css('--color-surface'), 'border-color': css('--color-ink') } },
+        { selector: 'node[type="generator"]', style: { 'background-color': css('--color-crit'), 'border-color': css('--color-ink') } },
         { selector: 'node[state="removed"]', style: { 'border-color': css('--color-crit'), 'border-style': 'dashed', 'border-width': 2.5 } },
         { selector: 'edge', style: {
           width: 1.6, 'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'arrow-scale': 0.7, label: 'data(label)', 'font-size': 7,
@@ -71,7 +73,7 @@ export default function Graph() {
           style: { 'line-color': st(s).color.startsWith('var') ? css(st(s).color.slice(4, -1)) : st(s).color, 'target-arrow-color': css(st(s).color.slice(4, -1)),
             'line-style': (s === 'Inferred' ? 'dashed' : s === 'Lead' || s === 'Unknown' ? 'dotted' : 'solid') as any, width: s === 'Corroborated' ? 3 : 1.6 },
         })),
-        { selector: ':selected', style: { 'overlay-color': '#ffffff', 'overlay-opacity': 0.12, 'overlay-padding': 6 } },
+        { selector: ':selected', style: { 'overlay-color': css('--color-ink'), 'overlay-opacity': 0.12, 'overlay-padding': 6 } },
         { selector: '.faded', style: { opacity: 0.15 } },
       ],
       layout: { name: 'cose', animate: false, nodeRepulsion: () => 26000, idealEdgeLength: () => 110, nodeOverlap: 20, gravity: 0.6, padding: 30, randomize: false, numIter: 2500 } as any,
@@ -86,7 +88,7 @@ export default function Graph() {
     cy.on('tap', (ev) => { if (ev.target === cy) { cy.elements().removeClass('faded'); setSel(null) } })
     cyRef.current = cy
     return () => cy.destroy()
-  }, [elements, data, cd.blur])
+  }, [elements, data, cd.blur, themeV])
 
   const ranked = data?.analytics?.ranked_accounts ?? []
   const types = data ? [...new Set<string>(data.nodes.map((n: any) => n.type))] : []

@@ -49,7 +49,7 @@ def render_case_file(s: Session, case_id: str) -> str:
     case = s.get(Case, case_id)
     v = vault_for(case_id)
     media = s.exec(select(Media).where(Media.case_id == case_id)).all()
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     blur = bool(case.safety.get("intimate") or case.safety.get("minors_possible"))
     nar = build_narrative(s, case_id)
     na = next_action(s, case_id)

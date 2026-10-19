@@ -18,6 +18,7 @@ from ..graph.build import build_graph, graph_json
 from ..pipeline import load_genealogy
 from ..reasoning.attribution import build_leads
 from ..reasoning.gaps import analyse_gaps
+from ..reasoning.lead_engine import build_lead_engine
 from ..reasoning.timeline import build_timeline
 from .bsa63_cert import certificate_docx
 from .case_file import html_to_pdf, render_case_file
@@ -26,6 +27,25 @@ from .complaint import complaint_docx, get_or_create
 FOLDER = {"original": "originals", "download": "discovered_media", "capture_screenshot": "captures/screenshots",
           "capture_html": "captures/html", "capture_mhtml": "captures/mhtml", "capture_headers": "captures/headers",
           "artifact": "analysis_artifacts"}
+
+
+def _safe(fn):
+    """The package must still export if an optional analysis fails."""
+    try:
+        return fn()
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
+def _generator_all(s, case_id):
+    from ..analyzers.base import Ctx  # noqa: F401  (keeps import order stable)
+    from ..core.models import Media
+    from ..reasoning.generator import generator_attribution
+    out = []
+    for m in s.exec(select(Media).where(Media.case_id == case_id)).all():
+        if m.fingerprints:
+            out.append({"media_id": m.id, "label": m.label, **generator_attribution(load_claims(s, case_id, "decomposition", m.id))})
+    return out
 
 
 def export_package(s: Session, case_id: str, actor: str = "investigator") -> Path:
@@ -56,6 +76,8 @@ def export_package(s: Session, case_id: str, actor: str = "investigator") -> Pat
         "timeline": build_timeline(s, case_id),
         "graph": graph_json(build_graph(s, case_id)),
         "leads": build_leads(s, case_id),
+        "lead_engine": _safe(lambda: build_lead_engine(s, case_id)),
+        "generator_attribution": _safe(lambda: _generator_all(s, case_id)),
         "gaps": analyse_gaps(s, case_id),
         "user_log": [n.model_dump(mode="json") for n in s.exec(select(TimelineNote).where(TimelineNote.case_id == case_id)).all()],
         "status_legend": {"Verified": "direct/cryptographic observation", "Corroborated": "two or more independent sources",

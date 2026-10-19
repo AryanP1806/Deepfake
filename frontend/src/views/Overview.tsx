@@ -13,8 +13,8 @@ interface Overview {
 }
 
 const SECTION_LINK: Record<string, string> = {
-  what: 'decomposition', why: 'decomposition', spread: 'propagation', connected: 'leads', proven: 'evidence',
-  leads: 'graph', missing: 'gaps', next: 'act',
+  what: 'decomposition', why: 'decomposition', spread: 'spread', connected: 'leads', proven: 'evidence',
+  leads: 'graph', missing: 'gaps', next: 'takedown',
 }
 const SECTION_ACCENT: Record<string, string> = {
   proven: 'var(--color-st-verified)', leads: 'var(--color-st-lead)', missing: 'var(--color-st-unknown)',
@@ -40,19 +40,21 @@ export default function OverviewView() {
               <div className="mono truncate text-[10px] text-ink-3">sha256 {m.sha256}</div>
             </div>
           </Link>
-          {m.verdict ? <VerdictCard v={m.verdict} /> : <div className="card p-6 text-sm text-ink-3">Analysis has not finished yet — the verdict appears here as soon as the detectors are done.</div>}
+          {m.verdict ? <VerdictCard v={m.verdict} /> : m.level
+            ? <div className="card p-6 text-sm"><div className="font-semibold">No verdict for this file</div><p className="mt-1 text-ink-3">{m.verdict_note ?? 'The detectors that ran could not reach a verdict.'}</p></div>
+            : <div className="card p-6 text-sm text-ink-3">Analysis has not finished yet — the verdict appears here as soon as the detectors are done.</div>}
         </div>
       ))}
 
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <div className="space-y-4">
-          {!primary.length && <div className="card p-5 text-sm text-ink-3">Add the suspicious media file from the left panel to begin.</div>}
+          {!primary.length && <div className="card p-5 text-sm text-ink-3">No suspect media yet. If you pasted a link, the panel at the top says what happened — some pages need a login or show no downloadable picture or video; then save the file yourself and add it with “Add media file” on the left. Otherwise add the file from the left panel.</div>}
           {ov && (
             <div className="card border-ink/30 p-4">
               <div className="label flex items-center gap-1.5"><Compass size={12} /> What you should do now</div>
               <div className="mt-2 font-semibold leading-snug">{ov.next_action.primary.title}</div>
               <p className="mt-1.5 text-[13px] text-ink-2">{ov.next_action.primary.why}</p>
-              <Link to={casePath(caseId, 'act')} className="btn btn-primary mt-3 w-full justify-center">Open action plan <ArrowRight size={14} /></Link>
+              <Link to={casePath(caseId, 'takedown')} className="btn btn-primary mt-3 w-full justify-center">Open the step-by-step guide <ArrowRight size={14} /></Link>
               {ov.next_action.dont.length > 0 && (
                 <ul className="mt-3 space-y-1 text-[12px] text-ink-3">{ov.next_action.dont.map((d) => <li key={d}>✕ {d}</li>)}</ul>
               )}

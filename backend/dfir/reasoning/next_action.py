@@ -55,7 +55,7 @@ INCIDENT_GUIDANCE = {
 
 def next_action(s: Session, case_id: str) -> dict:
     case = s.get(Case, case_id)
-    locs = s.exec(select(Location).where(Location.case_id == case_id)).all()
+    locs = s.exec(select(Location).where(Location.case_id == case_id, Location.dismissed == False)).all()  # noqa: E712
     comp = s.get(Complaint, case_id)
     mon = s.get(MonitorConfig, case_id)
     gaps = analyse_gaps(s, case_id)

@@ -46,3 +46,15 @@ export function useCaseEvents(caseId: string | undefined, onDone: () => void) {
   }, [caseId])
   return jobs
 }
+
+/** Call ``fn`` every ``ms`` milliseconds while the tab is visible (and once when it becomes visible again). */
+export function usePolling(fn: () => void, ms: number) {
+  const ref = useRef(fn)
+  ref.current = fn
+  useEffect(() => {
+    const tick = () => { if (document.visibilityState === 'visible') ref.current() }
+    const t = setInterval(tick, ms)
+    document.addEventListener('visibilitychange', tick)
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', tick) }
+  }, [ms])
+}

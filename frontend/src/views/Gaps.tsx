@@ -7,7 +7,7 @@ import { useCase } from '../context'
 import { casePath } from '../lib/paths'
 import { useApi } from '../hooks'
 
-const ACTION_LINK: Record<string, string> = { capture: 'propagation', add_urls: 'propagation', complaint: 'complaint', monitor: 'monitor', detectors: '/settings', upload_reference: 'overview' }
+const ACTION_LINK: Record<string, string> = { capture: 'spread', add_urls: 'spread', complaint: 'complaint', monitor: 'monitor', detectors: '/settings', upload_reference: 'overview' }
 
 export default function Gaps() {
   const { caseId, tick } = useCase()

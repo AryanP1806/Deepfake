@@ -29,7 +29,7 @@ export function AnalysisStatus({ caseId, onChange, kick = 0 }: { caseId: string;
         const d = await api.get(`/api/cases/${caseId}/analysis-status`)
         if (stop) return
         fetchedAt.current = Date.now()
-        setActive(d.active)
+        setActive(d.active.filter((a: any) => a.kind !== 'investigate'))  // the investigation panel shows those
         const sig = JSON.stringify(d.active.map((a: any) => [a.job_id, a.steps?.filter((s: any) => s.status !== 'pending' && s.status !== 'running').length]))
         if (sig !== lastSig.current) {
           if (lastSig.current !== '') cb.current()

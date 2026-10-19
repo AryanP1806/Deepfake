@@ -1,0 +1,32 @@
+"""Example plugin (rename to .py to enable): reports the file size per megapixel. Replace analyse() with a real method.
+
+It shows the whole contract: requirements, an optional model that is NOT needed to run, findings of the four kinds, limitations.
+"""
+from dfir.forensics.base import FCtx, Finding, ForensicModule, ModuleResult, Requirement
+from dfir.forensics.registry import register
+
+DFIR_PLUGIN_API = 1
+
+
+@register
+class BytesPerPixel(ForensicModule):
+    id = "example_bytes_per_pixel"
+    title = "Example: bytes per pixel"
+    question = "How heavily is this image compressed?"
+    version = "0.1"
+    modalities = ("image",)
+    requirements = [Requirement(kind="model", name="my_optional_model", optional=True,
+                                how_to_enable="uv run python ../scripts/setup_models.py my_optional_model")]
+    limitations = ["File size depends on content as well as compression; this is a crude indicator."]
+
+    def analyse(self, fx: FCtx) -> ModuleResult:
+        w, h = fx.media.get("width") or 0, fx.media.get("height") or 0
+        res = ModuleResult(module=self.id, title=self.title, version=self.version)
+        if not (w and h):
+            res.findings.append(Finding(id="bpp", title="Bytes per pixel", kind="unknown", statement="The image size is not known."))
+            return res
+        bpp = fx.path.stat().st_size / (w * h)
+        res.findings.append(Finding(id="bpp", title="Bytes per pixel", kind="observation", value=round(bpp, 3), unit="bytes/px",
+                                    statement=f"{bpp:.2f} bytes per pixel.", caution="Content-dependent."))
+        res.summary = res.findings[0].statement
+        return res

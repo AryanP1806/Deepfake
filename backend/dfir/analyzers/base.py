@@ -87,7 +87,7 @@ def register(cls: type[Analyzer]) -> type[Analyzer]:
 
 def registry() -> list[Analyzer]:
     from . import (audio, c2pa_check, content_region, detectors_api, detectors_local, faces,  # noqa: F401
-                   image_forensics, metadata, ocr, provenance_signals, asr, research_detectors, video)
+                   image_forensics, metadata, ocr, provenance_signals, asr, research_detectors, video, forensic_suite)
     return sorted(_REGISTRY, key=lambda a: a.order)
 
 

@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
-from .api import cases, investigation, lab, reporting, system
+from .api import dashboard, forensic, forensic_modules, workflow, cases, investigation, lab, reporting, system
 from .core.config import APP_NAME, APP_VERSION, PROJECT_ROOT
 from .core.consent import OUTWARD_ACTIONS, ConsentRequired
 from .core import logbuf
@@ -44,13 +44,15 @@ async def consent_required(_req: Request, exc: ConsentRequired):
                                                   "case_id": exc.case_id})
 
 
-for r in (cases.router, investigation.router, reporting.router, system.router, lab.router):
+for r in (cases.router, investigation.router, reporting.router, system.router, lab.router, workflow.router, forensic.router, forensic_modules.router, dashboard.router):
     app.include_router(r)
 
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "app": APP_NAME, "version": APP_VERSION}
+    # the web page checks this: a page newer than its backend would otherwise spin forever on missing endpoints
+    return {"ok": True, "app": APP_NAME, "version": APP_VERSION,
+            "features": ["investigate", "spread", "takedown", "case_delete", "lead_engine", "generator", "source", "forensic_modules", "preferences", "dashboard"]}
 
 
 # --------------------------------------------------------------------------- UI on the same port

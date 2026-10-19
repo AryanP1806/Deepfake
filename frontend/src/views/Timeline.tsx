@@ -62,11 +62,11 @@ export default function Timeline() {
             <div className="relative overflow-x-auto">
               <svg viewBox={`0 0 ${g.W} ${g.H}`} className="w-full min-w-[900px]">
                 <defs>
-                  <pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#8a8983" strokeWidth="2" opacity="0.55" /></pattern>
+                  <pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--color-st-unknown)" strokeWidth="2" opacity="0.55" /></pattern>
                 </defs>
                 {g.lanes.map((ln, i) => (
                   <g key={ln}>
-                    <rect x={0} y={g.top + i * g.laneH} width={g.W} height={g.laneH} fill={i % 2 ? 'transparent' : '#ffffff05'} />
+                    <rect x={0} y={g.top + i * g.laneH} width={g.W} height={g.laneH} fill={i % 2 ? 'transparent' : 'color-mix(in srgb, var(--color-ink) 4%, transparent)'} />
                     <text x={10} y={g.top + i * g.laneH + g.laneH / 2 + 4} fontSize={12} fontWeight={600} fill="var(--color-ink-2)">{LANE_LABEL[ln] ?? ln}</text>
                   </g>
                 ))}
@@ -84,7 +84,7 @@ export default function Timeline() {
                     const xe = g.x(parse(e.end))
                     return (
                       <g key={i} onMouseEnter={() => setHover({ e, x: g.padL + 10, y: g.top + lane * g.laneH })} onMouseLeave={() => setHover(null)}>
-                        <rect x={g.padL} y={g.top + lane * g.laneH + 8} width={Math.max(4, xe - g.padL)} height={g.laneH - 16} fill="url(#hatch)" stroke="#8a8983" strokeDasharray="2 4" rx={6} />
+                        <rect x={g.padL} y={g.top + lane * g.laneH + 8} width={Math.max(4, xe - g.padL)} height={g.laneH - 16} fill="url(#hatch)" stroke="var(--color-st-unknown)" strokeDasharray="2 4" rx={6} />
                         <text x={g.padL + 8} y={g.top + lane * g.laneH + g.laneH / 2 + 4} fontSize={11} fill="var(--color-ink)" fontWeight={600}>? {e.title} — unknown</text>
                       </g>
                     )
