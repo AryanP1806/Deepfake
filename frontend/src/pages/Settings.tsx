@@ -2,7 +2,6 @@
 import { Check, CheckCircle2, CircleDashed, KeyRound, Puzzle, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '../api'
-import { TopNav } from './Lab'
 import { Section, Spinner, StatusBadge } from '../components/ui'
 import { useApi } from '../hooks'
 import { usePrefs } from '../prefs'
@@ -17,9 +16,8 @@ const TABS: { id: Tab; label: string }[] = [
 export default function Settings() {
   const [tab, setTab] = useState<Tab>((new URLSearchParams(window.location.search).get('tab') as Tab) || 'appearance')
   return (
-    <div className="mx-auto max-w-5xl px-8 py-8">
-      <TopNav active="settings" />
-      <h1 className="display mt-8 text-[28px] font-semibold leading-tight">Settings</h1>
+    <div className="mx-auto max-w-5xl">
+      <h1 className="display px-1 text-[28px] font-extrabold leading-tight">Settings</h1>
       <div role="tablist" aria-label="Settings sections" className="mt-4 flex gap-1 border-b border-line">
         {TABS.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} id={`tab-${t.id}`} aria-controls={`panel-${t.id}`}
@@ -140,11 +138,20 @@ function Appearance() {
         </div>
       </Section>
 
+      <Section title="Profile" subtitle="Shown at the bottom of the sidebar. Stored on this computer only.">
+        <div id="profile" className="grid gap-4 sm:grid-cols-2">
+          <div><label htmlFor="pf-name" className="label mb-1.5 block">Your name</label>
+            <input id="pf-name" className="input" maxLength={60} value={prefs.profile?.name ?? ''} onChange={(e) => set({ profile: { name: e.target.value, role: prefs.profile?.role ?? 'Investigator' } })} placeholder="Optional" autoComplete="name" /></div>
+          <div><label htmlFor="pf-role" className="label mb-1.5 block">Role</label>
+            <input id="pf-role" className="input" maxLength={40} value={prefs.profile?.role ?? ''} onChange={(e) => set({ profile: { name: prefs.profile?.name ?? '', role: e.target.value } })} placeholder="Investigator" /></div>
+        </div>
+      </Section>
+
       <div className="flex items-center justify-between text-[12.5px] text-ink-3">
         <span role="status">
           {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved. Your choices are kept in the data folder and in this browser, so they survive restarts.' : 'Saved in this browser only: the backend could not be reached.'}
         </span>
-        <button className="btn btn-quiet" onClick={() => { reset(); setHex('#2f6f9f') }}><RotateCcw size={13} /> Reset appearance</button>
+        <button className="btn btn-quiet" onClick={() => { reset(); setHex('#2f6fe0') }}><RotateCcw size={13} /> Reset appearance</button>
       </div>
     </div>
   )

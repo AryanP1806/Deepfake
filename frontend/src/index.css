@@ -175,6 +175,7 @@ a { color: inherit; text-underline-offset: 2px; }
 .blur-sensitive { filter: blur(18px) saturate(0.6); transition: filter .2s; }
 .blur-sensitive:hover { filter: blur(18px) saturate(0.6); }
 
+@layer components {
 /* ---- components (same class names in every theme; the tokens do the work) ------------------------------------------ */
 .card {
   background: var(--color-surface);
@@ -251,13 +252,17 @@ a.tile:hover, button.tile:hover { box-shadow: var(--elev-ctl-hover); }
   background: color-mix(in srgb, var(--chip, var(--color-accent-text)) 13%, var(--color-surface)); box-shadow: var(--elev-ctl); }
 [data-theme="workbench"] .icon-chip { box-shadow: none; border: 1px solid var(--color-line); }
 .badge { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .65rem; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.5;
-  color: var(--b, var(--color-ink-2)); background: color-mix(in srgb, var(--b, var(--color-ink-2)) 12%, var(--color-surface)); border: 1px solid color-mix(in srgb, var(--b, var(--color-ink-2)) 35%, transparent); }
+  /* text is the tone mixed toward the ink colour so it stays above 4.5:1 on its own tint (checked in every theme/mode) */
+  color: color-mix(in srgb, var(--b, var(--color-ink-2)) 62%, var(--color-ink)); background: color-mix(in srgb, var(--b, var(--color-ink-2)) 10%, var(--color-surface)); border: 1px solid color-mix(in srgb, var(--b, var(--color-ink-2)) 40%, transparent); }
+.badge svg, .badge .dot { color: var(--b, var(--color-ink-2)); }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 99px; background: var(--d, var(--color-good)); }
 .meter { height: 6px; border-radius: 99px; background: var(--color-bg); overflow: hidden; box-shadow: var(--elev-inset); border: 1px solid var(--color-line); }
 .meter > i { display: block; height: 100%; background: var(--color-accent); border-radius: 99px; }
 
 .table-quiet th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-ink-3); font-weight: 600; padding: .4rem .6rem; border-bottom: 1px solid var(--color-line-strong); }
 .table-quiet td { padding: .5rem .6rem; border-bottom: 1px solid var(--color-line); vertical-align: top; }
+
+}
 
 /* ---- motion ------------------------------------------------------------------------------------------------------- */
 @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-crit) 40%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }

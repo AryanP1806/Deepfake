@@ -232,6 +232,14 @@ uploader of an altered version"), **first known uploader** and **distributor** a
 any repost and counts for almost nothing; a relationship between accounts needs several *independent kinds* of distinctive evidence
 (text, identity, time, technical) before it rises above *low*, and never beyond "a hypothesis worth investigating".
 
+## Home dashboard
+
+`/` is a dashboard: start an investigation (paste a URL, upload a file, or paste text containing links), jump to an analysis module,
+resume a recent case, and see backend, GPU and model status. The sidebar, search (Ctrl/Cmd+K over cases, file names and hashes, URLs,
+domains and handles), alerts bell, light/dark switch and profile are all live. Cases, Investigation, URL Search, Monitoring, Evidence
+Vault and Reports are global views over the same per-case data; the analysis tools open the matching part of the case you choose.
+The default look is the soft Neomorphism theme in light mode; change it in Settings -> Appearance.
+
 ## Forensic modules (sensor noise, camera processing, editing, video, audio, provenance)
 
 Six pluggable modules, shown per file on **Investigate deeper -> Forensic modules**. Each returns findings (Measured / Supported /

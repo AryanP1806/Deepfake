@@ -3,7 +3,6 @@ import { Activity, ChevronDown, ChevronRight, Cpu, Database, Eye, EyeOff, FileJs
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, fmtBytes, fmtTime, vaultUrl } from '../api'
-import { Brand } from '../components/Brand'
 import { BenchmarkPanel } from '../components/BenchmarkPanel'
 import { LevelBadge, Spinner, StatusBadge } from '../components/ui'
 
@@ -11,18 +10,6 @@ const OUTCOME: Record<string, { label: string; color: string }> = {
   ok: { label: 'ran', color: 'var(--color-good)' },
   not_run: { label: 'not checked', color: 'var(--color-ink-3)' },
   error: { label: 'error', color: 'var(--color-crit)' },
-}
-
-export function TopNav({ active }: { active: 'cases' | 'lab' | 'settings' }) {
-  const item = (to: string, k: string, label: string) => (
-    <Link to={to} aria-current={active === k ? 'page' : undefined} className="nav-item !px-3 !py-1.5 text-[13px] font-medium">{label}</Link>
-  )
-  return (
-    <div className="flex items-center justify-between">
-      <Brand />
-      <nav aria-label="Main" className="flex gap-1">{item('/', 'cases', 'Cases')}{item('/lab', 'lab', 'Lab · backend')}{item('/settings', 'settings', 'Settings')}</nav>
-    </div>
-  )
 }
 
 export default function Lab() {
@@ -53,8 +40,7 @@ export default function Lab() {
   }
 
   return (
-    <div className="mx-auto max-w-[1500px] px-8 py-6">
-      <TopNav active="lab" />
+    <div className="mx-auto max-w-[1500px]">
       <div className="mt-6 flex items-end justify-between">
         <div>
           <div className="label flex items-center gap-1.5"><FlaskConical size={12} /> Lab</div>
