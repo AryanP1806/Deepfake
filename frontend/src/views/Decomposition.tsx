@@ -54,7 +54,7 @@ export default function Decomposition() {
   const ts = art('timeseries')
   useEffect(() => {
     setSeries(null)
-    if (ts) fetch(vaultUrl(caseId, ts.sha256)).then((r) => r.json()).then(setSeries)
+    if (ts && vaultUrl(caseId, ts.sha256)) fetch(vaultUrl(caseId, ts.sha256)).then((r) => r.json()).then(setSeries).catch(() => {})
   }, [ts?.sha256, caseId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const grouped = useMemo(() => {
@@ -66,7 +66,7 @@ export default function Decomposition() {
   const absent = (d?.claims ?? []).filter(isAbsence)
 
   const showJson = async (a: Artifact) => {
-    const t = await fetch(vaultUrl(caseId, a.sha256)).then((r) => r.text())
+    const t = await fetch(vaultUrl(caseId, a.sha256)).then((r) => r.text()).catch(() => 'Not kept in the saved demo.')
     try { setJsonView({ label: a.label, body: JSON.stringify(JSON.parse(t), null, 2) }) } catch { setJsonView({ label: a.label, body: t }) }
   }
   const runApi = async (component: string) => {

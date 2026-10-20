@@ -9,6 +9,43 @@ its evidence (vault SHA-256s), the tool and version that produced it, its limita
 There is no single "fake probability". Detector outputs are evidence, not verdicts. When metadata, watermarks or
 detector hits are absent, the result is *Unknown*, never "authentic".
 
+## Try it online (no install)
+
+**Live demo: https://deepfake-mu-six.vercel.app/**
+
+The hosted site shows **three completed, saved example cases** so you can see what the app does without running anything:
+
+| Demo | What it shows |
+|---|---|
+| 1 · AI-generated school photo of a celebrity | A viral AI image ([source article](https://www.boredpanda.com/school-photos-of-celebrities-created-with-ai/)): the verdict with reasons, where it was found, the forensic modules, and what to do next |
+| 2 · Face-swap meme found through an Instagram post | A meme traced from [an Instagram post](https://www.instagram.com/p/DMzd8nbIqAo/) to copies on other accounts: spread map, versions, leads |
+| 3 · Morphed image of a private individual (fully synthetic) | A procedurally drawn stand-in (no real person) that walks through every stage: capture, genealogy, timeline, complaint, monitoring |
+
+It is **read-only**. The analysis backend (PyTorch, about 4 GB of models, ffmpeg, a headless browser and a writable disk) cannot run on
+Vercel, so anything that needs it (a new investigation, an upload, a re-run, a delete) shows a friendly "connect the backend" message instead.
+A description of the project, with the demo walk-through, is in the
+[project folder on Google Drive](https://drive.google.com/drive/u/0/folders/1cUssmVU0RQ5XPIHA5YZ9o2kEuX3VBqbw).
+
+**To analyse your own media**, either look at the demo above, or download the project from that folder (or this repository) and run it
+yourself with Docker: see the next section. When a backend is reachable the app switches to live mode on its own.
+
+<details><summary>How the hosted demo works, and how to rebuild it</summary>
+
+* The frontend decides at start-up: if `/api/health` answers, it is live; otherwise it reads the saved cases from `frontend/public/demo/`.
+  `?demo=1` forces the saved demo (and remembers it); `?demo=0` goes back to the live backend.
+* `frontend/public/demo/` is generated from your own data by `scripts/export_demo.py`. It copies only the chosen cases into a scratch
+  directory, clears personal complaint details, runs the forensic modules where missing, saves every read-only API response the screens use,
+  keeps preview-sized evidence images (originals stay in your vault), and **refuses to finish if it finds local paths, e-mail addresses or key-like strings**.
+  ```bash
+  cd backend && uv run --extra provenance --extra capture python ../scripts/export_demo.py
+  ```
+  Pass `--cases case_a,case_b` for other cases (edit `DEMOS` in the script for titles).
+* Vercel project settings: **Root Directory `frontend`**, build `npm run build`, output `dist`. `frontend/vercel.json` rewrites every path to the
+  single-page app so deep links and refreshes work.
+* To run the hosted frontend against a real backend instead, add `{ "source": "/api/(.*)", "destination": "https://YOUR-BACKEND/api/$1" }`
+  as the first rewrite in `frontend/vercel.json`. The app then starts in live mode. The backend has no login, so only expose one you are happy to share.
+</details>
+
 ## Quick start with Docker (no installs)
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and start it.

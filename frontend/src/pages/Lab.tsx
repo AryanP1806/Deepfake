@@ -2,6 +2,7 @@
 import { Activity, ChevronDown, ChevronRight, Cpu, Database, Eye, EyeOff, FileJson, FlaskConical, HardDrive, Pause, Play, Server, Upload, Zap } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useMode } from '../lib/demo'
 import { api, fmtBytes, fmtTime, vaultUrl } from '../api'
 import { BenchmarkPanel } from '../components/BenchmarkPanel'
 import { LevelBadge, Spinner, StatusBadge } from '../components/ui'
@@ -12,7 +13,7 @@ const OUTCOME: Record<string, { label: string; color: string }> = {
   error: { label: 'error', color: 'var(--color-crit)' },
 }
 
-export default function Lab() {
+function LabLive() {
   const [sys, setSys] = useState<any>(null)
   const [runs, setRuns] = useState<any[]>([])
   const [sel, setSel] = useState<{ case_id: string; media_id: string } | null>(null)
@@ -291,4 +292,20 @@ function JobsPanel({ jobs }: { jobs: any[] }) {
       </div>
     </div>
   )
+}
+
+/** The Lab shows the live backend (GPU, logs, a quick analysis bench), so there is nothing to show in the saved demo. */
+export default function Lab() {
+  const mode = useMode()
+  if (mode === 'demo') {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <div className="card p-6" role="status">
+          <h1 className="display text-[22px] font-bold">The Lab needs the live backend</h1>
+          <p className="mt-2 text-[14px] text-ink-2">The Lab shows GPU and model status, live logs and a quick bench for analysing a single file. None of that exists in the saved demo. Run the app yourself with Docker to use it.</p>
+        </div>
+      </div>
+    )
+  }
+  return <LabLive />
 }

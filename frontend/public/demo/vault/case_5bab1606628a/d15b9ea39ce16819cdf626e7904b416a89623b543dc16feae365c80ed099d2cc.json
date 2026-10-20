@@ -1,0 +1,34 @@
+{
+  "lines": [
+    {
+      "text": "@leaky_news EXCLUSIVE ",
+      "conf": 0.9494456811384722,
+      "box": [
+        [
+          26.0,
+          56.0
+        ],
+        [
+          626.0,
+          50.0
+        ],
+        [
+          626.0,
+          99.0
+        ],
+        [
+          26.0,
+          104.0
+        ]
+      ],
+      "t": null
+    }
+  ],
+  "entities": {
+    "handles": [
+      "leaky_news"
+    ],
+    "urls": [],
+    "platform_marks": []
+  }
+}

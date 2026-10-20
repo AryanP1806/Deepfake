@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { guardDemo } from '../lib/demo'
 import { Check, Copy, Download, ExternalLink, FileText, Phone, RefreshCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api, fmtBytes, fmtTime } from '../api'
@@ -31,7 +32,7 @@ export default function Complaint() {
         question="Everything the NCRP portal and platforms ask for, prepared from the evidence. You review it, and you submit it yourself."
         right={<div className="flex gap-2">
           <button className="btn" onClick={async () => { await api.get(`/api/cases/${caseId}/complaint?regenerate=true`); reload(); toast('Regenerated from latest evidence') }} disabled={submitted}><RefreshCw size={14} /> Regenerate</button>
-          <a className="btn" href={`/api/cases/${caseId}/complaint.docx`}><Download size={14} /> DOCX</a></div>} />
+          <a className="btn" onClick={guardDemo} href={`/api/cases/${caseId}/complaint.docx`}><Download size={14} /> DOCX</a></div>} />
 
       <div className="mb-5 flex items-center gap-2">
         {steps.map((s, i) => {

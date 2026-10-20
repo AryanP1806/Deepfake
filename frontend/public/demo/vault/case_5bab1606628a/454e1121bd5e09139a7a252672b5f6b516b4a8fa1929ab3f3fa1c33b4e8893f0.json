@@ -1,0 +1,537 @@
+{
+  "module": "editing",
+  "title": "Editing and recompression analysis",
+  "version": "1.0",
+  "api_version": 1,
+  "status": "ok",
+  "summary": "1 region(s) show at least two independent cues at once (largest: 12 tiles; cues: JPEG grid, copy-move).",
+  "findings": [
+    {
+      "id": "ela.tiles",
+      "title": "Error-level analysis",
+      "statement": "0 of 110 tiles recompress unusually for their texture (after removing the effect of texture).",
+      "kind": "observation",
+      "confidence": null,
+      "value": 0,
+      "unit": "tiles",
+      "why": "Regions saved at a different quality or pasted from elsewhere recompress differently.",
+      "caution": "Edges, text and smooth gradients also do; compare with the heat map, not just the count.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": false
+    },
+    {
+      "id": "noise.tiles",
+      "title": "Noise-residual consistency",
+      "statement": "2 of 110 tiles have a noise level unusual for their texture.",
+      "kind": "observation",
+      "confidence": null,
+      "value": 2,
+      "unit": "tiles",
+      "why": "",
+      "caution": "Local blur, exposure and denoising change noise without any splicing.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": false
+    },
+    {
+      "id": "resampling.none",
+      "title": "Resampling",
+      "statement": "No interpolation periodicity was found (prominence 5.2, threshold 10).",
+      "kind": "observation",
+      "confidence": null,
+      "value": 5.24,
+      "unit": "peak prominence",
+      "why": "",
+      "caution": "Reductions, integer scaling and strong compression hide it. Not evidence of an unedited image.",
+      "evidence": [],
+      "data": {
+        "score": 5.24,
+        "threshold": 10.0,
+        "flag": false
+      },
+      "emit_claim": true
+    },
+    {
+      "id": "jpeg.grid",
+      "title": "JPEG block grid",
+      "statement": "The JPEG block grid is aligned with the image origin.",
+      "kind": "observation",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "",
+      "evidence": [],
+      "data": {
+        "offset": [
+          0,
+          0
+        ],
+        "strength": 1.607
+      },
+      "emit_claim": true
+    },
+    {
+      "id": "jpeg.double",
+      "title": "Double JPEG compression",
+      "statement": "No double-quantisation pattern was found.",
+      "kind": "observation",
+      "confidence": null,
+      "value": 3.03,
+      "unit": "peak score",
+      "why": "",
+      "caution": "Double compression with the same or a higher final quality, or after resizing, is not detectable this way.",
+      "evidence": [],
+      "data": {
+        "assessable": true,
+        "score": 3.03,
+        "coef": [
+          1,
+          0
+        ]
+      },
+      "emit_claim": true
+    },
+    {
+      "id": "copy_move",
+      "title": "Copy-move",
+      "statement": "1 pair(s) of image regions share matching local features with a consistent geometric transform (strongest: 15 matches, scale 0.997\u00d7).",
+      "kind": "hypothesis",
+      "confidence": 0.35,
+      "value": 1,
+      "unit": "region pair(s)",
+      "why": "Duplicating part of a picture to hide or add something creates two regions with identical local structure.",
+      "caution": "Repeating patterns (windows, tiles, foliage, text, crowds) and symmetric objects match too. Review the two regions by eye. In validation this flag fired on 0% of 160 real web photographs (95 % interval 0%\u20132%).",
+      "evidence": [],
+      "data": {
+        "pairs": [
+          {
+            "n_matches": 15,
+            "scale": 0.997,
+            "rotation_deg": 0.3,
+            "source_box": [
+              189,
+              58,
+              413,
+              433
+            ],
+            "copy_box": [
+              72,
+              58,
+              293,
+              433
+            ]
+          }
+        ]
+      },
+      "emit_claim": true
+    },
+    {
+      "id": "localisation",
+      "title": "Candidate edited regions",
+      "statement": "1 region(s) show at least two independent cues at once (largest: 12 tiles; cues: JPEG grid, copy-move).",
+      "kind": "hypothesis",
+      "confidence": 0.24,
+      "value": 1,
+      "unit": "region(s)",
+      "why": "Independent measurements (compression level, demosaicing, JPEG grid, resampling, duplication) rarely misfire at the same spot.",
+      "caution": "A lead for human review only. Screenshots, overlaid text/stickers and platform processing can also stack cues. Not a conclusion that anything was altered. In validation this flag fired on 6% of 160 real web photographs (95 % interval 3%\u201311%).",
+      "evidence": [
+        "ev_map"
+      ],
+      "data": {
+        "regions": [
+          {
+            "tile_box": [
+              2,
+              0,
+              6,
+              3
+            ],
+            "n_tiles": 12,
+            "cues": [
+              "JPEG grid",
+              "copy-move"
+            ]
+          }
+        ],
+        "cue_families": [
+          "JPEG grid",
+          "compression/noise level",
+          "copy-move"
+        ]
+      },
+      "emit_claim": true
+    }
+  ],
+  "confidence": 0.35,
+  "confidence_label": "low",
+  "confidence_basis": "Capped at 0.70 because the method is validated on synthetic data only.",
+  "limitations": [
+    "Every cue here also fires on innocent processing (screenshots, platform recompression, resizing, filters). Treat flags as leads for visual review.",
+    "A clean result does not show authenticity: careful edits, fully generated images and regions processed with the whole image leave none of these traces.",
+    "Localisation boxes are tile-based (64 px) and approximate.",
+    "Measured on simulated edits: splices whose compression history differs from the rest of the picture are localised; splices pasted before a single JPEG save, and rescaled pastes, are largely missed. See the validation results.",
+    "Thresholds were set on simulated edits; the false-positive rate on real web photos is reported in the validation results."
+  ],
+  "unknowns": [],
+  "evidence": [
+    {
+      "id": "ev_map",
+      "kind": "image",
+      "label": "Editing-cue agreement map",
+      "sha256": "b4f2839e86560e81c6b0bf08742f3673527605bb2525fed7eefc4f3a9938b2de",
+      "claim_id": null,
+      "data": {
+        "regions": [
+          {
+            "tile_box": [
+              2,
+              0,
+              6,
+              3
+            ],
+            "n_tiles": 12,
+            "cues": [
+              "JPEG grid",
+              "copy-move"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "versions": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "cv2": "5.0.0",
+    "PIL": "12.3.0"
+  },
+  "validation": {
+    "tier": "synthetic",
+    "summary": "Validated on simulated splices, copy-move, resizing and double compression, plus a false-positive measurement on real web photographs.",
+    "metrics": {
+      "untouched_single_jpeg": {
+        "localisation": {
+          "k": 1,
+          "n": 48,
+          "rate": 0.0208,
+          "ci95": [
+            0.0037,
+            0.109
+          ]
+        },
+        "resampling": {
+          "k": 0,
+          "n": 48,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.0741
+          ]
+        },
+        "double_jpeg": {
+          "k": 0,
+          "n": 48,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.0741
+          ]
+        },
+        "grid_shift": {
+          "k": 0,
+          "n": 48,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.0741
+          ]
+        },
+        "copy_move": {
+          "k": 0,
+          "n": 48,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.0741
+          ]
+        }
+      },
+      "tampering": {
+        "splice_other_camera_raw": {
+          "localised": {
+            "k": 1,
+            "n": 24,
+            "rate": 0.0417,
+            "ci95": [
+              0.0074,
+              0.2024
+            ]
+          },
+          "mean_iou": 0.004
+        },
+        "splice_rescaled_1.3": {
+          "localised": {
+            "k": 0,
+            "n": 24,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.138
+            ]
+          },
+          "mean_iou": 0.0
+        },
+        "splice_double_jpeg_history": {
+          "localised": {
+            "k": 19,
+            "n": 24,
+            "rate": 0.7917,
+            "ci95": [
+              0.5953,
+              0.9076
+            ]
+          },
+          "mean_iou": 0.412
+        },
+        "copy_move_plain": {
+          "detected": {
+            "k": 16,
+            "n": 24,
+            "rate": 0.6667,
+            "ci95": [
+              0.4671,
+              0.8203
+            ]
+          }
+        }
+      },
+      "global_resampling_flagged": {
+        "none": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        },
+        "enlarged_1.2": {
+          "k": 21,
+          "n": 24,
+          "rate": 0.875,
+          "ci95": [
+            0.69,
+            0.9566
+          ]
+        },
+        "enlarged_1.5": {
+          "k": 24,
+          "n": 24,
+          "rate": 1.0,
+          "ci95": [
+            0.862,
+            1.0
+          ]
+        },
+        "reduced_0.8": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        },
+        "enlarged_2.0": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        }
+      },
+      "double_jpeg_flagged": {
+        "single_q92": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        },
+        "q75_then_q92": {
+          "k": 1,
+          "n": 24,
+          "rate": 0.0417,
+          "ci95": [
+            0.0074,
+            0.2024
+          ]
+        },
+        "q85_then_q92": {
+          "k": 24,
+          "n": 24,
+          "rate": 1.0,
+          "ci95": [
+            0.862,
+            1.0
+          ]
+        },
+        "q95_then_q75": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        },
+        "q90_then_q90": {
+          "k": 0,
+          "n": 24,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.138
+          ]
+        }
+      },
+      "real_photo_false_positives": {
+        "real": {
+          "n": 160,
+          "source": "OpenFake/LAION-style web photographs",
+          "localisation_flagged": {
+            "k": 10,
+            "n": 160,
+            "rate": 0.0625,
+            "ci95": [
+              0.0343,
+              0.1112
+            ]
+          },
+          "resampling_flagged": {
+            "k": 48,
+            "n": 160,
+            "rate": 0.3,
+            "ci95": [
+              0.2344,
+              0.375
+            ]
+          },
+          "double_jpeg_flagged": {
+            "k": 14,
+            "n": 160,
+            "rate": 0.0875,
+            "ci95": [
+              0.0528,
+              0.1415
+            ]
+          },
+          "grid_shift_flagged": {
+            "k": 2,
+            "n": 160,
+            "rate": 0.0125,
+            "ci95": [
+              0.0034,
+              0.0444
+            ]
+          },
+          "copy_move_flagged": {
+            "k": 0,
+            "n": 160,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0234
+            ]
+          },
+          "demosaicing_pattern_found": {
+            "k": 0,
+            "n": 160,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0234
+            ]
+          },
+          "seconds_per_image": 0.44
+        },
+        "fake": {
+          "n": 160,
+          "source": "AI-generated (OpenFake)",
+          "localisation_flagged": {
+            "k": 15,
+            "n": 160,
+            "rate": 0.0938,
+            "ci95": [
+              0.0576,
+              0.1489
+            ]
+          },
+          "resampling_flagged": {
+            "k": 133,
+            "n": 160,
+            "rate": 0.8313,
+            "ci95": [
+              0.7656,
+              0.8814
+            ]
+          },
+          "double_jpeg_flagged": {
+            "k": 2,
+            "n": 160,
+            "rate": 0.0125,
+            "ci95": [
+              0.0034,
+              0.0444
+            ]
+          },
+          "grid_shift_flagged": {
+            "k": 1,
+            "n": 160,
+            "rate": 0.0063,
+            "ci95": [
+              0.0011,
+              0.0345
+            ]
+          },
+          "copy_move_flagged": {
+            "k": 19,
+            "n": 160,
+            "rate": 0.1187,
+            "ci95": [
+              0.0774,
+              0.178
+            ]
+          },
+          "demosaicing_pattern_found": {
+            "k": 0,
+            "n": 160,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0234
+            ]
+          },
+          "seconds_per_image": 0.74
+        }
+      }
+    },
+    "dataset": "Simulated tampering with known masks"
+  },
+  "requirements": [],
+  "media": {
+    "id": "med_4e8c1bb95427",
+    "sha256": "88704729a0629cefbe931af1cc32c3d1d596a779bd12cf9b6e2d4fd5fb571c24",
+    "filename": "whatsapp_forward_IMG-20261004-WA0012.jpg"
+  },
+  "run_at": "2026-10-20T12:26:27.304792+00:00",
+  "runtime_ms": 374,
+  "error": ""
+}

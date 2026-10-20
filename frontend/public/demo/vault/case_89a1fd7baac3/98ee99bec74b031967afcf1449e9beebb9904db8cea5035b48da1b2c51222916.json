@@ -1,0 +1,27 @@
+{
+  "format": "JPEG",
+  "mode": "RGB",
+  "size": [
+    513,
+    640
+  ],
+  "exif": {},
+  "info": {
+    "jfif": "257",
+    "jfif_version": "(1, 1)",
+    "jfif_unit": "0",
+    "jfif_density": "(1, 1)",
+    "photoshop": "{1028: b'\\x1c\\x02(\\x00ZFBMD23000941020000171c00003a310000bd4b0000c1850000a5970000d3b8000051cd000042db000096f60000\\x00'}",
+    "progressive": "1",
+    "progression": "1"
+  },
+  "has_xmp": false,
+  "has_icc": false,
+  "jpeg": {
+    "quality_estimate": 89,
+    "ijg_residual": 4.44,
+    "tables": 2,
+    "qtable_hash": "923eccc3affc900a",
+    "progressive": true
+  }
+}

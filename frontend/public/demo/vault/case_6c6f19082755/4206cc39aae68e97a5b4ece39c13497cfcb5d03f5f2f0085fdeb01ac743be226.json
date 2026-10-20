@@ -1,0 +1,387 @@
+{
+  "module": "prnu",
+  "title": "PRNU sensor-noise fingerprinting",
+  "version": "1.0",
+  "api_version": 1,
+  "status": "partial",
+  "summary": "No candidate-device fingerprint is on file for this case, so no sensor comparison was possible.",
+  "findings": [
+    {
+      "id": "prnu.no_candidate",
+      "title": "Candidate device",
+      "statement": "No candidate-device fingerprint is on file for this case, so no sensor comparison was possible.",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "A fingerprint is built from at least 5 photos (20+ is better) known to come from the suspected camera, all at the same pixel size as this image.",
+      "caution": "Add reference photos and save them as a candidate device.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    },
+    {
+      "id": "attribution.device",
+      "title": "Which physical device captured this",
+      "statement": "Exact device attribution is not made. Only a comparison against a named candidate can be reported, and a match supports \u2014 never proves \u2014 a shared sensor.",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "EXIF make/model are declared by the file and identify a model, not a device.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    }
+  ],
+  "confidence": null,
+  "confidence_label": "unknown",
+  "confidence_basis": "No interpretive finding was made, so there is nothing to attach a confidence to.",
+  "limitations": [
+    "It tests a specific suspected camera; it never identifies a camera on its own.",
+    "A camera model is not a device: only reference photos from the suspected physical device can support a match.",
+    "The pattern is weakened or destroyed by resizing, cropping, heavy JPEG compression, screenshots and platform re-encoding; the image must have the same pixel size and orientation as the references.",
+    "AI-generated images carry no sensor pattern, and a non-match proves nothing about authenticity.",
+    "Validated on simulated sensors only; no real-camera test set has been run."
+  ],
+  "unknowns": [
+    "No candidate-device fingerprint is on file for this case, so no sensor comparison was possible.",
+    "Exact device attribution is not made. Only a comparison against a named candidate can be reported, and a match supports \u2014 never proves \u2014 a shared sensor."
+  ],
+  "evidence": [],
+  "versions": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pywt": "1.8.0",
+    "PIL": "12.3.0",
+    "method": "wavelet(db8, 4 levels) residual, maximum-likelihood fingerprint, PCE"
+  },
+  "validation": {
+    "tier": "synthetic",
+    "summary": "Validated on simulated sensors with known fixed-pattern noise. NOT validated on real cameras: no labelled real-camera set was available.",
+    "metrics": {
+      "devices": 8,
+      "refs_per_device": 10,
+      "tests_per_device": 6,
+      "image_px": 512,
+      "conditions": {
+        "none": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 577.0,
+          "median_pce_impostor": 23.4,
+          "auc": 1.0
+        },
+        "jpeg_q95": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 528.2,
+          "median_pce_impostor": 22.2,
+          "auc": 1.0
+        },
+        "jpeg_q85": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 255.5,
+          "median_pce_impostor": 21.8,
+          "auc": 1.0
+        },
+        "jpeg_q70": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 133.7,
+          "median_pce_impostor": 21.7,
+          "auc": 1.0
+        },
+        "jpeg_q50": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 26,
+            "n": 48,
+            "rate": 0.5417,
+            "ci95": [
+              0.4029,
+              0.6742
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 64.5,
+          "median_pce_impostor": 21.3,
+          "auc": 0.9972
+        },
+        "resize_0.9": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 351.0,
+          "median_pce_impostor": 21.8,
+          "auc": 1.0
+        },
+        "resize_0.5": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 44,
+            "n": 48,
+            "rate": 0.9167,
+            "ci95": [
+              0.8045,
+              0.9671
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 103.9,
+          "median_pce_impostor": 21.4,
+          "auc": 0.9984
+        },
+        "crop_90pct": {
+          "genuine_trials": 0,
+          "impostor_trials": 0,
+          "not_comparable": 48,
+          "tpr_at_60": null,
+          "false_match_at_60": null,
+          "median_pce_genuine": null,
+          "median_pce_impostor": null,
+          "auc": null
+        },
+        "rotate_90": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 0,
+            "n": 48,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0741
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 22.9,
+          "median_pce_impostor": 22.8,
+          "auc": 0.4975
+        },
+        "blur_1.0": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 47,
+            "n": 48,
+            "rate": 0.9792,
+            "ci95": [
+              0.891,
+              0.9963
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 113.2,
+          "median_pce_impostor": 21.4,
+          "auc": 1.0
+        },
+        "brightness_contrast": {
+          "genuine_trials": 48,
+          "impostor_trials": 336,
+          "not_comparable": 0,
+          "tpr_at_60": {
+            "k": 48,
+            "n": 48,
+            "rate": 1.0,
+            "ci95": [
+              0.9259,
+              1.0
+            ]
+          },
+          "false_match_at_60": {
+            "k": 0,
+            "n": 336,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0113
+            ]
+          },
+          "median_pce_genuine": 607.0,
+          "median_pce_impostor": 24.2,
+          "auc": 1.0
+        },
+        "messaging_app": {
+          "genuine_trials": 0,
+          "impostor_trials": 0,
+          "not_comparable": 48,
+          "tpr_at_60": null,
+          "false_match_at_60": null,
+          "median_pce_genuine": null,
+          "median_pce_impostor": null,
+          "auc": null
+        },
+        "screenshot": {
+          "genuine_trials": 0,
+          "impostor_trials": 0,
+          "not_comparable": 48,
+          "tpr_at_60": null,
+          "false_match_at_60": null,
+          "median_pce_genuine": null,
+          "median_pce_impostor": null,
+          "auc": null
+        }
+      },
+      "false_match_at_threshold": {
+        "threshold": 60.0,
+        "trials": 3360,
+        "false_matches": 0,
+        "upper_95": 0.00114202761509341
+      }
+    },
+    "dataset": "8 simulated devices x 10 reference images, 6 test images per device, 512 px, 13 transformations"
+  },
+  "requirements": [
+    {
+      "kind": "python",
+      "name": "pywt",
+      "how_to_enable": "uv sync   (PyWavelets is a core dependency)",
+      "optional": false,
+      "ok": true,
+      "version": "1.8.0"
+    }
+  ],
+  "media": {
+    "id": "med_a12efb6aece0",
+    "sha256": "1293f4e7cb8eeefe25581cd44877440674d39dffd88b423d77b799af23843b1f",
+    "filename": "School-photos-of-Celebrities-created-with-AI-64ef322c0e0d0-png__700.jpg"
+  },
+  "run_at": "2026-10-19T14:08:31.712072+00:00",
+  "runtime_ms": 28,
+  "error": ""
+}

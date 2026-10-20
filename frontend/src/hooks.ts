@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from './api'
+import { isDemo } from './lib/demo'
 
 export function useApi<T>(url: string | null, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null)
@@ -32,7 +33,7 @@ export function useCaseEvents(caseId: string | undefined, onDone: () => void) {
   const cb = useRef(onDone)
   cb.current = onDone
   useEffect(() => {
-    if (!caseId) return
+    if (!caseId || isDemo()) return  // the saved demo has no live job stream
     const es = new EventSource(`/api/cases/${caseId}/events`)
     es.addEventListener('job', (ev) => {
       const d = JSON.parse((ev as MessageEvent).data) as JobEvent
@@ -52,7 +53,7 @@ export function usePolling(fn: () => void, ms: number) {
   const ref = useRef(fn)
   ref.current = fn
   useEffect(() => {
-    const tick = () => { if (document.visibilityState === 'visible') ref.current() }
+    const tick = () => { if (document.visibilityState === 'visible' && !isDemo()) ref.current() }  // nothing changes in the saved demo
     const t = setInterval(tick, ms)
     document.addEventListener('visibilitychange', tick)
     return () => { clearInterval(t); document.removeEventListener('visibilitychange', tick) }

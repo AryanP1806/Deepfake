@@ -58,7 +58,7 @@ export default function Evidence() {
             <thead><tr className="border-b border-line text-left text-ink-3"><th className="py-2 pr-3 font-medium">Item</th><th className="pr-3 font-medium">Kind</th><th className="pr-3 font-medium">SHA-256 / MD5</th><th className="pr-3 font-medium">Acquired</th><th className="font-medium">Source</th></tr></thead>
             <tbody>{recs.map((r: any) => (
               <tr key={r.sha256} className="border-b border-line/60 align-top">
-                <td className="py-2 pr-3"><a className="underline decoration-dotted" href={vaultUrl(caseId, r.sha256, true)}>{r.filename}</a><div className="text-ink-3">{fmtBytes(r.size)}</div></td>
+                <td className="py-2 pr-3">{vaultUrl(caseId, r.sha256, true) ? <a className="underline decoration-dotted" href={vaultUrl(caseId, r.sha256, true)}>{r.filename}</a> : <span title="Not kept in the saved demo">{r.filename}</span>}<div className="text-ink-3">{fmtBytes(r.size)}</div></td>
                 <td className="pr-3 text-ink-2">{KIND_LABEL[r.kind] ?? r.kind}</td>
                 <td className="mono pr-3 text-[10.5px] text-ink-2">{r.sha256}<div className="text-ink-3">{r.md5}</div></td>
                 <td className="whitespace-nowrap pr-3 text-ink-2">{fmtTime(r.stored_at?.utc)}</td>

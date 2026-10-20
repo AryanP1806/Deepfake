@@ -31,6 +31,7 @@ import Forensics from '../views/Forensics'
 import Generator from '../views/Generator'
 import Timeline from '../views/Timeline'
 import { usePrefs } from '../prefs'
+import { guardDemo } from '../lib/demo'
 
 /** Main path (plain language) first; the specialist tools live under "Advanced". */
 export const STEPS = [
@@ -147,11 +148,11 @@ export default function CaseWorkspace() {
             ))}
           </nav>
           <div className="space-y-1.5 border-t border-line p-3">
-            <label className={`btn w-full justify-center ${uploading ? 'opacity-50' : ''}`}>
+            <label onClick={guardDemo} className={`btn w-full justify-center ${uploading ? 'opacity-50' : ''}`}>
               <Upload size={14} aria-hidden /> {uploading ? 'Preserving…' : 'Add media file'}
               <input type="file" hidden accept="image/*,video/*,audio/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
             </label>
-            <label className="btn btn-quiet w-full justify-center">
+            <label onClick={guardDemo} className="btn btn-quiet w-full justify-center">
               <Upload size={14} aria-hidden /> Add authentic reference
               <input type="file" hidden accept="image/*,video/*,audio/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], 'reference')} />
             </label>

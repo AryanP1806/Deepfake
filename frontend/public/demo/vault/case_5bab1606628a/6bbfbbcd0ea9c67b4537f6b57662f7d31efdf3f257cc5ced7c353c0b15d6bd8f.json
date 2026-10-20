@@ -1,0 +1,24 @@
+{
+  "format": "JPEG",
+  "mode": "RGB",
+  "size": [
+    800,
+    950
+  ],
+  "exif": {},
+  "info": {
+    "jfif": "257",
+    "jfif_version": "(1, 1)",
+    "jfif_unit": "0",
+    "jfif_density": "(1, 1)"
+  },
+  "has_xmp": false,
+  "has_icc": false,
+  "jpeg": {
+    "quality_estimate": 78,
+    "ijg_residual": 0.0,
+    "tables": 2,
+    "qtable_hash": "7e1c2cd35d6b903e",
+    "progressive": false
+  }
+}

@@ -12,13 +12,16 @@ import Lab from './pages/Lab'
 import Settings from './pages/Settings'
 import ToolPicker from './pages/ToolPicker'
 import { BackendCheck } from './components/BackendCheck'
+import { DemoGate } from './components/DemoGate'
+import { bootstrap } from './lib/demo'
 import { PrefsProvider } from './prefs'
 
-createRoot(document.getElementById('root')!).render(
+bootstrap().finally(() => createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <PrefsProvider>
       <BrowserRouter>
         <BackendCheck />
+        <DemoGate />
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<Home />} />
@@ -37,4 +40,4 @@ createRoot(document.getElementById('root')!).render(
       </BrowserRouter>
     </PrefsProvider>
   </StrictMode>,
-)
+))

@@ -2,6 +2,7 @@
 import { ShieldAlert } from 'lucide-react'
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react'
 import { api, ConsentNeeded, type Case, type Media } from './api'
+import { DEMO_BLOCKED_MESSAGE } from './lib/demo'
 
 export interface CaseData {
   case: Case
@@ -72,6 +73,7 @@ export function Toasts({ items }: { items: { id: number; msg: string; tone: stri
 export function useToasts() {
   const [items, setItems] = useState<{ id: number; msg: string; tone: string }[]>([])
   const toast = useCallback((msg: string, tone: 'ok' | 'err' = 'ok') => {
+    if (msg === DEMO_BLOCKED_MESSAGE) return  // the demo dialog already explains this
     const id = Date.now() + Math.random()
     setItems((x) => [...x, { id, msg, tone }])
     setTimeout(() => setItems((x) => x.filter((t) => t.id !== id)), 4500)

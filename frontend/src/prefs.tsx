@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { api } from './api'
+import { isDemo } from './lib/demo'
 import { applyPrefs, DEFAULT_PREFS, loadLocal, sanitize, type AccentSet, type Prefs } from './lib/theme'
 
 type SaveState = 'saved' | 'saving' | 'local-only'
@@ -66,7 +67,7 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
         api.put<Prefs>('/api/preferences', { theme, mode, accent, motion, profile }).then((r) => {
           // store the server's timestamp so both copies agree
           localStorage.setItem('dfir.prefs', JSON.stringify({ ...next, updated_at: r.updated_at }))
-          setSaveState('saved')
+          setSaveState(isDemo() ? 'local-only' : 'saved')
         }).catch(() => setSaveState('local-only'))
       }, 350)
       return next

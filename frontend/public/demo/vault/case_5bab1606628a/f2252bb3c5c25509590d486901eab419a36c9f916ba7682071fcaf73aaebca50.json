@@ -1,0 +1,14 @@
+{
+  "format": "PNG",
+  "mode": "RGB",
+  "size": [
+    1024,
+    1024
+  ],
+  "exif": {},
+  "info": {
+    "parameters": "portrait photo of a young woman, city lights bokeh, 85mm, photorealistic\nNegative prompt: cartoon, lowres\nSteps: 30, Sampler: DPM++ 2M Karras, CFG scale: 6.5, Seed: 1928374650, Size: 1024x1024, Model hash: 31e35c80fc, Model: sd_xl_base_1.0, Version: v1.10.1 [DEMO]"
+  },
+  "has_xmp": false,
+  "has_icc": false
+}

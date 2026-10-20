@@ -2,6 +2,7 @@ import { ArrowRight, ChevronDown, ClipboardPaste, Image as ImageIcon, Link2, Pla
 import { useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { INCIDENT_CHOICES } from '../../api'
+import { DemoBlocked } from '../../lib/demo'
 import { extractUrls, InvestigationError, startInvestigation } from '../../lib/investigate'
 
 type Tab = 'url' | 'file' | 'text'
@@ -58,7 +59,7 @@ export function NewInvestigation({ expanded = false, copiesFocus = false }: { ex
       const id = await startInvestigation({ links, file: tab === 'file' ? file : null, incident, title, description, intimate, minors, findCopies: findCopies || copiesFocus })
       nav(`/case/${id}/overview`)
     } catch (e) {
-      setErr(e instanceof InvestigationError ? e.message : (e as Error).message)
+      if (!(e instanceof DemoBlocked)) setErr(e instanceof InvestigationError ? e.message : (e as Error).message)
     } finally { setBusy(false) }
   }
 

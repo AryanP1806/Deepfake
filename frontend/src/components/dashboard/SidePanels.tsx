@@ -2,12 +2,23 @@ import { AudioLines, ChevronLeft, ChevronRight, ChevronRight as Go, Cpu, Databas
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDashboard } from '../../dashboard'
+import { useMode } from '../../lib/demo'
 import { Spinner } from '../ui'
 
 const gb = (mb: number | null | undefined) => (mb == null ? '–' : (mb / 1024).toFixed(1))
 
 export function SystemStatus() {
   const { data, error } = useDashboard()
+  const mode = useMode()
+  if (mode === 'demo') {
+    return (
+      <section className="card p-5" aria-labelledby="sys-h">
+        <h2 id="sys-h" className="display text-[19px] font-bold">System Status</h2>
+        <p className="mt-2 flex items-center gap-2 text-[14px] font-medium text-ink"><span className="dot" style={{ '--d': 'var(--color-v-uncertain)' } as React.CSSProperties} />Demo mode: backend not connected</p>
+        <p className="well mt-3 p-3.5 text-[13px] leading-snug text-ink-2">This site shows saved example cases. GPU and model status appear here when the analysis backend is running, for example when you run the app yourself with Docker.</p>
+      </section>
+    )
+  }
   const s = data?.system
   const ok = !!s?.backend.running
   const gpu = s?.gpu

@@ -233,8 +233,13 @@ function ForensicModules() {
 }
 
 // ------------------------------------------------------------------------------------------------ detectors, keys
+function NeedsBackend({ what, error }: { what: string; error: string }) {
+  return <div className="card p-5" role="status"><div className="font-semibold">{what} need the live backend.</div><p className="mt-1 text-[13px] text-ink-2">{error}</p></div>
+}
+
 function Detectors() {
-  const { data } = useApi<any>('/api/settings')
+  const { data, error } = useApi<any>('/api/settings')
+  if (error) return <NeedsBackend what="Detector and model status" error={error} />
   if (!data) return <Spinner />
   return (
     <div className="space-y-5">
@@ -262,8 +267,9 @@ function Detectors() {
 }
 
 function Keys() {
-  const { data, reload } = useApi<any>('/api/settings')
+  const { data, reload, error } = useApi<any>('/api/settings')
   const [vals, setVals] = useState<Record<string, string>>({})
+  if (error) return <NeedsBackend what="API keys" error={error} />
   if (!data) return <Spinner />
   return (
     <Section title="API keys" subtitle="Stored locally in data/settings.json. Adapters that send media to a third party also ask for your consent before each upload.">

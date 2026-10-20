@@ -1,0 +1,171 @@
+{
+  "module": "provenance",
+  "title": "Provenance: EXIF, C2PA, watermarks, generator metadata",
+  "version": "1.0",
+  "api_version": 1,
+  "status": "ok",
+  "summary": "No provenance data (C2PA, watermark, generator metadata) was found in the file. This is normal for shared media and proves nothing either way.",
+  "findings": [
+    {
+      "id": "exif.device",
+      "title": "Declared capture device",
+      "statement": "No capture-device metadata is present.",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "Normal for media shared through social platforms. Not evidence either way.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    },
+    {
+      "id": "c2pa.1",
+      "title": "Content Credentials (C2PA)",
+      "statement": "No C2PA / Content Credentials manifest found",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "The file carries no embedded provenance manifest.",
+      "caution": "Absence does NOT indicate authenticity: most media has no C2PA, and platforms strip manifests on re-upload. Many generators do not sign their output.",
+      "evidence": [
+        "clm_clm_6641821723aa"
+      ],
+      "data": {},
+      "emit_claim": false
+    },
+    {
+      "id": "watermark.open",
+      "title": "Open invisible watermark",
+      "statement": "No open (DWT-DCT) Stable Diffusion watermark recovered",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "Only the public Stable-Diffusion reference watermarks can be decoded; most generators use none or a private one.",
+      "evidence": [
+        "clm_clm_34819f8ed769"
+      ],
+      "data": {},
+      "emit_claim": true
+    },
+    {
+      "id": "watermark.closed",
+      "title": "Proprietary watermarks (SynthID and others)",
+      "statement": "Proprietary watermarks were not checked: no public detector exists.",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "Use the vendor's own verification tool where one is offered. A negative result there would also not prove authenticity.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    },
+    {
+      "id": "attribution.generator",
+      "title": "Generator family",
+      "statement": "No generator family can be attributed from provenance evidence in the file.",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "No signal is not a finding that the media is real.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    },
+    {
+      "id": "attribution.device",
+      "title": "Capture device",
+      "statement": "Exact device attribution is not made from metadata (see the sensor-noise module for the only test that can link an image to a physical camera).",
+      "kind": "unknown",
+      "confidence": null,
+      "value": null,
+      "unit": "",
+      "why": "",
+      "caution": "A phone model is not a device.",
+      "evidence": [],
+      "data": {},
+      "emit_claim": true
+    }
+  ],
+  "confidence": null,
+  "confidence_label": "unknown",
+  "confidence_basis": "No interpretive finding was made, so there is nothing to attach a confidence to.",
+  "limitations": [
+    "Everything in EXIF/XMP is declared by the file and can be added, edited, copied or removed by anyone.",
+    "Missing metadata is normal: WhatsApp, Instagram, X, Facebook and most platforms strip it. Absence is Unknown, never evidence of authenticity or of manipulation.",
+    "A C2PA signature proves who signed a record and that the file is unchanged since; the signer's statements are only as honest as the signer.",
+    "Proprietary watermarks (SynthID and others) have no public detector and were not checked.",
+    "A phone or camera model identifies a model shared by millions of devices, never one device."
+  ],
+  "unknowns": [
+    "No capture-device metadata is present.",
+    "No C2PA / Content Credentials manifest found",
+    "No open (DWT-DCT) Stable Diffusion watermark recovered",
+    "Proprietary watermarks were not checked: no public detector exists.",
+    "No generator family can be attributed from provenance evidence in the file.",
+    "Exact device attribution is not made from metadata (see the sensor-noise module for the only test that can link an image to a physical camera)."
+  ],
+  "evidence": [
+    {
+      "id": "clm_clm_6641821723aa",
+      "kind": "claim",
+      "label": "No C2PA / Content Credentials manifest found",
+      "sha256": null,
+      "claim_id": "clm_6641821723aa",
+      "data": {}
+    },
+    {
+      "id": "clm_clm_34819f8ed769",
+      "kind": "claim",
+      "label": "No open (DWT-DCT) Stable Diffusion watermark recovered",
+      "sha256": null,
+      "claim_id": "clm_34819f8ed769",
+      "data": {}
+    }
+  ],
+  "versions": {
+    "PIL": "12.3.0",
+    "c2pa": "0.91.0",
+    "attribution_tiers": "established / supported / suggested (reasoning.generator)"
+  },
+  "validation": {
+    "tier": "none",
+    "summary": "Parsing of EXIF/C2PA/watermark data is deterministic and covered by unit tests; no statistical method is involved. Attribution tiers follow reasoning/generator.py.",
+    "metrics": {},
+    "dataset": "n/a"
+  },
+  "requirements": [
+    {
+      "kind": "python",
+      "name": "c2pa",
+      "how_to_enable": "uv sync --extra provenance   (adds C2PA / Content Credentials checking)",
+      "optional": true,
+      "ok": true,
+      "version": "0.38.0"
+    },
+    {
+      "kind": "python",
+      "name": "imwatermark",
+      "how_to_enable": "uv sync --extra provenance   (adds open invisible-watermark decoding)",
+      "optional": true,
+      "ok": true,
+      "version": null
+    }
+  ],
+  "media": {
+    "id": "med_30facb5825d0",
+    "sha256": "6fd98124647f14f1b621a9601816d5230a31bb0e32a176cf8c93784265fe7ea3",
+    "filename": "649967781_17887871106445952_6183172345105601016_n.jpg?stp=c288.0.864.864a_dst-jp"
+  },
+  "run_at": "2026-10-20T12:26:24.493227+00:00",
+  "runtime_ms": 3713,
+  "error": ""
+}

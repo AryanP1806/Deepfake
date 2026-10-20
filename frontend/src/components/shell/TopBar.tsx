@@ -2,6 +2,7 @@ import { Bell, ChevronDown, Menu, Moon, Settings, Sun, Terminal } from 'lucide-r
 import { Link, useNavigate } from 'react-router-dom'
 import { api, fmtTime } from '../../api'
 import { useDashboard } from '../../dashboard'
+import { useMode } from '../../lib/demo'
 import { usePrefs } from '../../prefs'
 import { GlobalSearch } from './GlobalSearch'
 import { Popover } from './Popover'
@@ -82,11 +83,13 @@ function BackendMenu() {
 }
 
 export function TopBar({ onMenu }: { onMenu: () => void }) {
+  const demo = useMode() === 'demo'
   return (
     <header className="flex items-center gap-3 px-4 py-4 lg:px-6">
       <button className="btn !min-h-[40px] !w-[40px] justify-center !p-0 lg:hidden" onClick={onMenu} aria-label="Open navigation"><Menu size={18} /></button>
       <div className="min-w-0 flex-1"><GlobalSearch /></div>
       <div className="flex items-center gap-3">
+        {demo && <button className="badge" style={{ '--b': 'var(--color-accent-text)' } as React.CSSProperties} onClick={() => window.dispatchEvent(new Event('dfir-show-status'))} title="You are looking at saved example cases. Click for details."><span className="dot" style={{ '--d': 'var(--color-accent-text)' } as React.CSSProperties} />Demo mode</button>}
         <ModeSwitch />
         <Notifications />
         <BackendMenu />

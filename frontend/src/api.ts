@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { demoRequest, demoVaultUrl, isDemo } from './lib/demo'
 export type Status = 'Verified' | 'Corroborated' | 'Inferred' | 'Lead' | 'Unknown'
 
 export interface Claim {
@@ -64,6 +65,7 @@ export class ConsentNeeded extends Error {
 }
 
 async function req<T>(method: string, url: string, body?: any): Promise<T> {
+  if (isDemo()) return demoRequest<T>(method, url, body)  // no backend: saved demo cases, read-only
   const init: RequestInit = { method, headers: {} }
   if (body instanceof FormData) init.body = body
   else if (body !== undefined) {
@@ -95,7 +97,7 @@ export const api = {
 }
 
 export const vaultUrl = (caseId: string, sha?: string | null, download = false) =>
-  sha ? `/api/vault/${caseId}/${sha}${download ? '?download=true' : ''}` : ''
+  !sha ? '' : isDemo() ? demoVaultUrl(caseId, sha) : `/api/vault/${caseId}/${sha}${download ? '?download=true' : ''}`
 
 export const fmtTime = (iso?: string | null, withTz = true) => {
   if (!iso) return '—'

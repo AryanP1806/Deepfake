@@ -1,0 +1,1 @@
+{"config":{"case_id":"case_5bab1606628a","enabled":false,"interval_minutes":360,"last_run_at":null},"alerts":[{"case_id":"case_5bab1606628a","message":"Now unavailable: http://127.0.0.1:8765/telegram/s/spicyleaks_demo/311","seen":false,"created_at":"2026-10-07T09:21:35.337739Z","kind":"removed","id":"alr_5fbedfaf6462","data":{"location_id":"loc_dc7472e7d4a7","previous":"live"}}]}

@@ -153,7 +153,7 @@ function LeadGraph({ g, caseId, blur, versions, onPick }: { g: any; caseId: stri
     let d = '', lx = 0, ly = 0
     if (sa && !ta) { const x1 = AX + AW, y1 = ay.get(e.source)! + 30, x2 = VX, y2 = (vy.get(e.target) ?? 0) + 34; d = `M${x1},${y1} C${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`; lx = (x1 + x2) / 2; ly = (y1 + y2) / 2 }
     else if (sa && ta) { const x = AX, y1 = ay.get(e.source)! + 30, y2 = ay.get(e.target)! + 30, bulge = 70 + Math.abs(y2 - y1) * 0.15; d = `M${x},${y1} C${x - bulge},${y1} ${x - bulge},${y2} ${x},${y2}`; lx = x - bulge * 0.72; ly = (y1 + y2) / 2 }
-    else { const x = VX + VW, off = (e.key % 3) * 10, y1 = (vy.get(e.source) ?? 0) + 34, y2 = (vy.get(e.target) ?? 0) + 34, bulge = 56 + off; d = `M${x},${y1} C${x + bulge},${y1} ${x + bulge},${y2} ${x},${y2}`; lx = x + bulge * 0.75 + 46; ly = (y1 + y2) / 2 }
+    else { const x = VX + VW, off = (((e.key as number | undefined) ?? i) % 3) * 10 , y1 = (vy.get(e.source) ?? 0) + 34, y2 = (vy.get(e.target) ?? 0) + 34, bulge = 56 + off; d = `M${x},${y1} C${x + bulge},${y1} ${x + bulge},${y2} ${x},${y2}`; lx = x + bulge * 0.75 + 46; ly = (y1 + y2) / 2 }
     return { ...e, d, lx, ly, key: i }
   })
   return (
